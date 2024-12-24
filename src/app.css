@@ -1,0 +1,128 @@
+:root {
+  accent-color: rgb(var(--m3-scheme-primary));
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+  }
+  :root,
+  ::backdrop {
+    --m3-scheme-primary: 110 93 14;
+    --m3-scheme-on-primary: 255 255 255;
+    --m3-scheme-primary-container: 249 226 135;
+    --m3-scheme-on-primary-container: 84 70 0;
+    --m3-scheme-inverse-primary: 220 198 110;
+    --m3-scheme-secondary: 102 94 64;
+    --m3-scheme-on-secondary: 255 255 255;
+    --m3-scheme-secondary-container: 238 226 188;
+    --m3-scheme-on-secondary-container: 78 71 42;
+    --m3-scheme-tertiary: 68 102 78;
+    --m3-scheme-on-tertiary: 255 255 255;
+    --m3-scheme-tertiary-container: 197 236 205;
+    --m3-scheme-on-tertiary-container: 44 78 55;
+    --m3-scheme-error: 186 26 26;
+    --m3-scheme-on-error: 255 255 255;
+    --m3-scheme-error-container: 255 218 214;
+    --m3-scheme-on-error-container: 147 0 10;
+    --m3-scheme-background: 255 249 238;
+    --m3-scheme-on-background: 30 27 19;
+    --m3-scheme-surface: 255 249 238;
+    --m3-scheme-on-surface: 30 27 19;
+    --m3-scheme-surface-variant: 234 226 207;
+    --m3-scheme-on-surface-variant: 75 71 57;
+    --m3-scheme-inverse-surface: 51 48 39;
+    --m3-scheme-inverse-on-surface: 247 240 226;
+    --m3-scheme-outline: 124 119 103;
+    --m3-scheme-outline-variant: 205 198 180;
+    --m3-scheme-shadow: 0 0 0;
+    --m3-scheme-scrim: 0 0 0;
+    --m3-scheme-surface-dim: 224 217 204;
+    --m3-scheme-surface-bright: 255 249 238;
+    --m3-scheme-surface-container-lowest: 255 255 255;
+    --m3-scheme-surface-container-low: 250 243 229;
+    --m3-scheme-surface-container: 244 237 223;
+    --m3-scheme-surface-container-high: 238 231 218;
+    --m3-scheme-surface-container-highest: 233 226 212;
+    --m3-scheme-surface-tint: 110 93 14;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+  :root,
+  ::backdrop {
+    --m3-scheme-primary: 220 198 110;
+    --m3-scheme-on-primary: 58 48 0;
+    --m3-scheme-primary-container: 84 70 0;
+    --m3-scheme-on-primary-container: 249 226 135;
+    --m3-scheme-inverse-primary: 110 93 14;
+    --m3-scheme-secondary: 210 198 161;
+    --m3-scheme-on-secondary: 55 48 22;
+    --m3-scheme-secondary-container: 78 71 42;
+    --m3-scheme-on-secondary-container: 238 226 188;
+    --m3-scheme-tertiary: 170 208 178;
+    --m3-scheme-on-tertiary: 21 55 34;
+    --m3-scheme-tertiary-container: 44 78 55;
+    --m3-scheme-on-tertiary-container: 197 236 205;
+    --m3-scheme-error: 255 180 171;
+    --m3-scheme-on-error: 105 0 5;
+    --m3-scheme-error-container: 147 0 10;
+    --m3-scheme-on-error-container: 255 218 214;
+    --m3-scheme-background: 22 19 11;
+    --m3-scheme-on-background: 233 226 212;
+    --m3-scheme-surface: 22 19 11;
+    --m3-scheme-on-surface: 233 226 212;
+    --m3-scheme-surface-variant: 75 71 57;
+    --m3-scheme-on-surface-variant: 205 198 180;
+    --m3-scheme-inverse-surface: 233 226 212;
+    --m3-scheme-inverse-on-surface: 51 48 39;
+    --m3-scheme-outline: 150 144 128;
+    --m3-scheme-outline-variant: 75 71 57;
+    --m3-scheme-shadow: 0 0 0;
+    --m3-scheme-scrim: 0 0 0;
+    --m3-scheme-surface-dim: 22 19 11;
+    --m3-scheme-surface-bright: 60 57 48;
+    --m3-scheme-surface-container-lowest: 16 14 7;
+    --m3-scheme-surface-container-low: 30 27 19;
+    --m3-scheme-surface-container: 34 31 23;
+    --m3-scheme-surface-container-high: 45 42 33;
+    --m3-scheme-surface-container-highest: 56 53 43;
+    --m3-scheme-surface-tint: 220 198 110;
+  }
+}
+
+@font-face {
+  font-family: Inter Variable;
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("InterVariable.woff2") format("woff2");
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border: solid 0 currentColor;
+}
+*:not(dialog) {
+  margin: 0;
+}
+*:not(b) {
+  font: inherit;
+}
+:root {
+  background-color: rgb(var(--m3-scheme-background));
+  color: rgb(var(--m3-scheme-on-background));
+}
+button,
+select {
+  cursor: pointer;
+}
+body {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  font-family: var(--m3-font);
+  --m3-font: Inter Variable, Roboto, Noto, sans-serif;
+}
