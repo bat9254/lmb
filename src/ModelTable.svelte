@@ -1,44 +1,26 @@
 <script lang="ts">
+  import {
+    modelMetadata,
+    type FilterStrategy,
+    shouldShowModel,
+    type ModelMetadata,
+  } from "./model-metadata";
+
   export let board: Record<string, Record<string, any>>;
   export let category: string;
   export let styleControl: boolean;
   export let searches: string[];
-  export let filterMode: "all" | "hide-deprecated" | "hide-comparable";
-  export let deprecatedModels: string[];
-  export let comparableModels: string[];
-  export let openModels: string[];
+  export let showEloGaps = false;
+  export let showOpenOnly = false;
+  export let filterStrategy: FilterStrategy = "showAll";
 
   $: categoryName = `${category}${styleControl ? "_style_control" : ""}`;
 
   let models: Array<{ name: string; rating: number; ciLow: number; ciHigh: number; rank: number }> =
     [];
   $: {
-    const filteredModels = Object.entries(board[categoryName]?.elo_rating_final || {}).filter(
-      ([name]) => {
-        // Apply search filters (OR operation)
-        if (searches.some((s) => s !== "")) {
-          const matchesSearch = searches.some((search) => {
-            if (search === "") return true;
-            if (search.toLowerCase() === "open") return openModels.includes(name);
-            return name.toLowerCase().includes(search.toLowerCase());
-          });
-          if (!matchesSearch) return false;
-        }
-
-        // Apply model filtering
-        if (filterMode == "hide-deprecated" && deprecatedModels.includes(name)) {
-          return false;
-        }
-        if (filterMode == "hide-comparable" && comparableModels.includes(name)) {
-          return false;
-        }
-
-        return true;
-      },
-    );
-
-    // Process models with confidence intervals
-    const processedModels = filteredModels.map(([name, rating]) => {
+    models = [];
+    for (const [name, rating] of Object.entries(board[categoryName]?.elo_rating_final || {})) {
       // Get bootstrap samples for this model
       const samples = board[categoryName]?.bootstrap_df?.[name] || {};
       const sampleValues = Object.values(samples) as number[];
@@ -53,38 +35,61 @@
         ciLow = Number(sorted[lowIndex]) || Number(rating);
         ciHigh = Number(sorted[highIndex]) || Number(rating);
       } else {
-        // Fallback to normal distribution approximation
-        const variance = Number(board[categoryName]?.leaderboard_table_df?.variance?.[name]) || 0;
-        const ci = Math.sqrt(variance) * 1.96;
-        ciLow = Number(rating) - ci;
-        ciHigh = Number(rating) + ci;
+        // // Fallback to normal distribution approximation
+        // const variance = Number(board[categoryName]?.leaderboard_table_df?.variance?.[name]) || 0;
+        // const ci = Math.sqrt(variance) * 1.96;
+        // ciLow = Number(rating) - ci;
+        // ciHigh = Number(rating) + ci;
       }
 
-      return {
+      models.push({
         name,
         rating: Number(rating),
         ciLow,
         ciHigh,
         rank: 0, // Will be calculated below
-      };
-    });
+      });
+    }
 
-    // Sort models and calculate ranks
-    const sortedModels = processedModels.sort((a, b) => b.rating - a.rating);
+    models.sort((a, b) => b.rating - a.rating);
 
     let rank = 1;
     let ciLow: number | undefined;
-    models = sortedModels.map((model, index) => {
+    for (const [i, model] of Object.entries(models)) {
       if (!ciLow) {
         ciLow = model.ciLow;
       }
       if (model.ciHigh < ciLow) {
         ciLow = model.ciLow;
-        rank = index + 1;
+        rank = +i + 1;
       }
 
-      return { ...model, rank };
-    });
+      model.rank = rank;
+    }
+
+    // Apply filters in stages
+    if (searches.length > 0) {
+      models = models.filter((model) => {
+        const name = model.name.toLowerCase();
+        return searches.some((search) => name.includes(search.toLowerCase()));
+      });
+    }
+
+    // Apply open-only filter before strategy filter if enabled
+    if (showOpenOnly) {
+      models = models.filter((model) => {
+        const metadata = modelMetadata[model.name];
+        return metadata?.isOpen == true;
+      });
+    }
+
+    // Apply strategy filter last
+    if (filterStrategy != "showAll") {
+      models = models.filter((model) => {
+        const metadata = modelMetadata[model.name];
+        return !metadata || shouldShowModel(model.name, metadata, filterStrategy, models);
+      });
+    }
   }
 
   function formatCI(rating: number, low: number, high: number): string {
@@ -93,23 +98,32 @@
     return `+${plus}/-${minus}`;
   }
 
-  function getModelLink(name: string): string {
-    // This is a placeholder - we'd need a mapping of model names to their URLs
-    const providers = {
-      gemini: "https://ai.google.dev/models/",
-      gpt: "https://platform.openai.com/docs/models/",
-      claude: "https://www.anthropic.com/claude",
-      llama: "https://ai.meta.com/llama/",
-      mistral: "https://mistral.ai/",
-      qwen: "https://huggingface.co/Qwen/",
+  function getModelLink(name: string) {
+    const metadata = modelMetadata[name];
+
+    // Check if model is open source - default to HuggingFace
+    if (metadata?.isOpen) {
+      return `https://huggingface.co/models?search=${encodeURIComponent(name)}`;
+    }
+
+    // Map organizations to their documentation URLs
+    const orgToUrl: Record<string, string> = {
+      OpenAI: "https://platform.openai.com/docs/models/",
+      Anthropic: "https://www.anthropic.com/claude",
+      Google: "https://ai.google.dev/models/",
+      Meta: "https://ai.meta.com/llama/",
+      Mistral: "https://mistral.ai/",
+      Qwen: "https://huggingface.co/Qwen/",
+      xAI: "https://x.ai/",
+      "01": "https://www.01.ai/",
     };
 
-    for (const [provider, url] of Object.entries(providers)) {
-      if (name.toLowerCase().includes(provider)) {
-        return url;
-      }
+    // If we have organization metadata, use that first
+    if (metadata?.organization && metadata.organization in orgToUrl) {
+      return orgToUrl[metadata.organization];
     }
-    return `https://huggingface.co/models?search=${encodeURIComponent(name)}`;
+
+    return undefined;
   }
 </script>
 
@@ -123,16 +137,28 @@
     </tr>
   </thead>
   <tbody>
-    {#each models as { name, rating, rank, ciLow, ciHigh }}
-      <tr>
+    {#each models as { name, rating, rank, ciLow, ciHigh }, i (name)}
+      {@const link = getModelLink(name)}
+      {#snippet text()}
+        {name}
+        {#if modelMetadata[name]?.isOpen}
+          <span class="badge">open</span>
+        {/if}
+      {/snippet}
+      <tr
+        style:--padding={showEloGaps && i > 0
+          ? `${2 * Math.min(Math.max(models[i - 1].rating - rating, 0), 300) + 1}px`
+          : "1px"}
+      >
         <td>{rank}</td>
         <td>
-          <a href={getModelLink(name)} target="_blank" rel="noopener noreferrer">
-            {name}
-            {#if openModels.includes(name)}
-              <span class="badge">open</span>
-            {/if}
-          </a>
+          {#if link}
+            <a href={getModelLink(name)} target="_blank" rel="noopener noreferrer">
+              {@render text()}
+            </a>
+          {:else}
+            {@render text()}
+          {/if}
         </td>
         <td>{Math.round(rating)}</td>
         <td>{formatCI(rating, ciLow, ciHigh)}</td>
@@ -144,7 +170,8 @@
 <style>
   table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     margin-top: 1rem;
   }
 
@@ -152,12 +179,16 @@
   td {
     padding: 0.5rem;
     text-align: left;
-    border-bottom: 1px solid rgb(var(--m3-scheme-outline-variant));
   }
 
   th {
     font-weight: bold;
     color: rgb(var(--m3-scheme-on-surface-variant));
+  }
+
+  td {
+    border-top: var(--padding) solid rgb(var(--m3-scheme-outline-variant));
+    transition: border-top-width 200ms;
   }
 
   td,
