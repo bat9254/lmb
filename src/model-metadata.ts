@@ -6,6 +6,28 @@ export interface ModelMetadata {
 }
 
 export type FilterStrategy = "showAll" | "hideDeprecated" | "hideOld" | "onePerOrg";
+export type PriceRange = "$" | "$$" | "$$$" | "$$$$";
+
+export function getPriceRange(price: number | undefined): PriceRange | undefined {
+  if (price === undefined) return undefined;
+  if (price < 0.2) return "$";
+  if (price < 1) return "$$";
+  if (price < 10) return "$$$";
+  return "$$$$";
+}
+
+export function getPriceRangeLabel(range: PriceRange): string {
+  switch (range) {
+    case "$":
+      return "<$0.20";
+    case "$$":
+      return "$0.20-$1";
+    case "$$$":
+      return "$1-$10";
+    case "$$$$":
+      return "$10+";
+  }
+}
 
 export function getFilterDescription(strategy: FilterStrategy): string {
   switch (strategy) {
@@ -102,18 +124,18 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   "falcon-180b-chat": { isOpen: true },
   "fastchat-t5-3b": { isOpen: true },
   "gemini-1.5-flash-001": { successed: true, organization: "Google" },
-  "gemini-1.5-flash-002": { organization: "Google" },
-  "gemini-1.5-flash-8b-001": { organization: "Google" },
+  "gemini-1.5-flash-002": { price: 0.075 + 2 * 0.3, organization: "Google" },
+  "gemini-1.5-flash-8b-001": { price: 0.0375 + 2 * 0.15, organization: "Google" },
   "gemini-1.5-flash-8b-exp-0827": { successed: true, organization: "Google" },
   "gemini-1.5-flash-exp-0827": { successed: true, organization: "Google" },
   "gemini-1.5-pro-001": { successed: true, organization: "Google" },
-  "gemini-1.5-pro-002": { organization: "Google" },
+  "gemini-1.5-pro-002": { price: 1.25 + 2 * 5, organization: "Google" },
   "gemini-1.5-pro-api-0409-preview": { successed: true, organization: "Google" },
   "gemini-1.5-pro-exp-0801": { successed: true, organization: "Google" },
   "gemini-1.5-pro-exp-0827": { successed: true, organization: "Google" },
   "gemini-2.0-flash-exp": { organization: "Google" },
   "gemini-2.0-flash-thinking-exp-1219": { organization: "Google" },
-  "gemini-advanced-0514": { organization: "Google" },
+  "gemini-advanced-0514": { successed: true, organization: "Google" },
   "gemini-exp-1114": { successed: true, organization: "Google" },
   "gemini-exp-1121": { successed: true, organization: "Google" },
   "gemini-exp-1206": { organization: "Google" },
@@ -145,7 +167,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   "gpt4all-13b-snoozy": { isOpen: true },
   "granite-3.0-2b-instruct": { isOpen: true },
   "granite-3.0-8b-instruct": { isOpen: true },
-  "grok-2-2024-08-13": { organization: "xAI" },
+  "grok-2-2024-08-13": { price: 2 + 2 * 10, organization: "xAI" },
   "grok-2-mini-2024-08-13": { organization: "xAI" },
   "guanaco-33b": { isOpen: true },
   "internlm2_5-20b-chat": { isOpen: true },
@@ -168,8 +190,8 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   "llama-3.1-nemotron-70b-instruct": { price: 0.12 + 0.6, isOpen: true, organization: "NVIDIA" },
   "llama-3.2-1b-instruct": { price: 0.01 + 2 * 0.02, isOpen: true, organization: "Meta" },
   "llama-3.2-3b-instruct": { price: 0.015 + 2 * 0.025, isOpen: true, organization: "Meta" },
-  "llama-3.2-vision-11b-instruct": { isOpen: true, organization: "Meta" },
-  "llama-3.2-vision-90b-instruct": { isOpen: true, organization: "Meta" },
+  "llama-3.2-vision-11b-instruct": { price: 0.055 + 2 * 0.055, isOpen: true, organization: "Meta" },
+  "llama-3.2-vision-90b-instruct": { price: 0.35 + 2 * 0.4, isOpen: true, organization: "Meta" },
   "llama-3.3-70b-instruct": { price: 0.12 + 2 * 0.3, isOpen: true, organization: "Meta" },
   "llama2-70b-steerlm-chat": { successed: true, isOpen: true, organization: "NVIDIA" },
   "llava-v1.6-34b": { isOpen: true },
@@ -205,8 +227,8 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   "phi-3-small-8k-instruct": { isOpen: true, organization: "Microsoft" },
   "phi-3-vision-128k-instruct": { isOpen: true, organization: "Microsoft" },
   "phi-3.5-vision-instruct": { isOpen: true, organization: "Microsoft" },
-  "pixtral-12b-2409": { isOpen: true, organization: "Mistral" },
-  "pixtral-large-2411": { isOpen: true, organization: "Mistral" },
+  "pixtral-12b-2409": { price: 0.1 + 2 * 0.1, isOpen: true, organization: "Mistral" },
+  "pixtral-large-2411": { price: 2 + 2 * 6, isOpen: true, organization: "Mistral" },
   "qwen-14b-chat": { successed: true, isOpen: true, organization: "Qwen" },
   "qwen-max-0428": { price: 10 + 2 * 30, organization: "Qwen" },
   "qwen-max-0919": { price: 10 + 2 * 30, organization: "Qwen" },
@@ -219,8 +241,8 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   "qwen1.5-72b-chat": { successed: true, isOpen: true, organization: "Qwen" },
   "qwen1.5-7b-chat": { successed: true, isOpen: true, organization: "Qwen" },
   "qwen2-72b-instruct": { price: 0.34 + 2 * 0.39, isOpen: true, organization: "Qwen" },
-  "qwen2-vl-72b": { isOpen: true, organization: "Qwen" },
-  "qwen2-vl-7b-instruct": { isOpen: true, organization: "Qwen" },
+  "qwen2-vl-72b": { price: 0.4 + 2 * 0.4, isOpen: true, organization: "Qwen" },
+  "qwen2-vl-7b-instruct": { price: 0.1 + 2 * 0.1, isOpen: true, organization: "Qwen" },
   "qwen2.5-72b-instruct": { price: 0.23 + 2 * 0.4, isOpen: true, organization: "Qwen" },
   "qwen2.5-coder-32b-instruct": { price: 0.07 + 2 * 0.16, isOpen: true, organization: "Qwen" },
   "qwen2.5-plus-1127": { price: 3 + 2 * 9, organization: "Qwen" },

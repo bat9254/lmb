@@ -2,7 +2,9 @@
   import {
     modelMetadata,
     type FilterStrategy,
+    type PriceRange,
     shouldShowModel,
+    getPriceRange,
     type ModelMetadata,
   } from "./model-metadata";
 
@@ -13,6 +15,7 @@
   export let showEloGaps = false;
   export let showOpenOnly = false;
   export let filterStrategy: FilterStrategy = "showAll";
+  export let selectedPriceRanges: Set<PriceRange>;
 
   $: categoryName = `${category}${styleControl ? "_style_control" : ""}`;
 
@@ -82,6 +85,18 @@
         return metadata?.isOpen == true;
       });
     }
+
+    // Apply price filter
+    models = models.filter((model) => {
+      if (selectedPriceRanges.size == 0) return true;
+
+      const metadata = modelMetadata[model.name];
+      const avgPrice = metadata?.price;
+      const priceRange = avgPrice && getPriceRange(avgPrice / 3);
+
+      if (!priceRange) return false;
+      return selectedPriceRanges.has(priceRange);
+    });
 
     // Apply strategy filter last
     if (filterStrategy != "showAll") {

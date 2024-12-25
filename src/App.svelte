@@ -14,7 +14,12 @@
   } from "m3-svelte";
   import { text as textBoard, vision as visionBoard } from "./assets/results.json";
   import ModelTable from "./ModelTable.svelte";
-  import { type FilterStrategy, getFilterDescription } from "./model-metadata";
+  import {
+    type FilterStrategy,
+    type PriceRange,
+    getFilterDescription,
+    getPriceRangeLabel,
+  } from "./model-metadata";
 
   let category = "full",
     vision = false,
@@ -23,7 +28,8 @@
   let settingsOpen = false;
   let showEloGaps = false;
   let showOpenOnly = false;
-  let filterStrategy: FilterStrategy = "showAll";
+  let filterStrategy: FilterStrategy = "hideDeprecated";
+  let selectedPriceRanges = new Set<PriceRange>();
 
   const categories = {
     text: {
@@ -118,6 +124,7 @@ coming soon:
   {showEloGaps}
   {showOpenOnly}
   {filterStrategy}
+  {selectedPriceRanges}
 />
 
 <Dialog bind:open={settingsOpen} headline="Settings">
@@ -130,6 +137,31 @@ coming soon:
       Open models only
       <Switch bind:checked={showOpenOnly} />
     </label>
+
+    <div class="filter-section">
+      <span>Price ranges</span>
+      <SegmentedButtonContainer>
+        {#each ["$", "$$", "$$$", "$$$$"] as range, i}
+          {@const isSelected = selectedPriceRanges.has(range as PriceRange)}
+          <input
+            type="checkbox"
+            checked={isSelected}
+            on:change={(e) => {
+              if (e.currentTarget.checked) {
+                selectedPriceRanges.add(range as PriceRange);
+              } else {
+                selectedPriceRanges.delete(range as PriceRange);
+              }
+              selectedPriceRanges = selectedPriceRanges;
+            }}
+            id="price-{i}"
+          />
+          <SegmentedButtonItem input="price-{i}">
+            {getPriceRangeLabel(range as PriceRange)}
+          </SegmentedButtonItem>
+        {/each}
+      </SegmentedButtonContainer>
+    </div>
 
     <div class="filter-section">
       <span>Drop similar models</span>
@@ -179,6 +211,10 @@ coming soon:
 
   .settings-content .filter-section span {
     color: rgb(var(--m3-scheme-on-surface-variant));
+  }
+
+  .settings-content .filter-section :global(label) {
+    flex-grow: 1;
   }
 
   .search {
