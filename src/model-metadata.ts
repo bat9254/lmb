@@ -42,45 +42,6 @@ export function getFilterDescription(strategy: FilterStrategy): string {
   }
 }
 
-export function shouldShowModel(
-  model: string,
-  metadata: ModelMetadata,
-  strategy: FilterStrategy,
-  allModels: Array<{ name: string; rating: number }>,
-): boolean {
-  switch (strategy) {
-    case "showAll":
-      return true;
-    case "hideDeprecated":
-      return !metadata.successed;
-    case "hideOld": {
-      if (metadata.successed) return false;
-      if (!metadata.organization || !metadata.price) return true;
-
-      const thisModelScore = allModels.find((m) => m.name === model)?.rating;
-      if (!thisModelScore) return true;
-
-      const price = metadata.price;
-      const org = metadata.organization;
-      return !allModels.some((other) => {
-        const otherMeta = modelMetadata[other.name];
-        if (otherMeta && otherMeta.organization == org && otherMeta.price) {
-          return other.rating > thisModelScore && otherMeta.price <= price;
-        }
-        return false;
-      });
-    }
-    case "onePerOrg":
-      if (!metadata.organization) return true;
-      const orgModels = allModels.filter(
-        (m) => modelMetadata[m.name]?.organization === metadata.organization,
-      );
-      const bestOrgModel = orgModels.reduce((best, current) =>
-        current.rating > best.rating ? current : best,
-      );
-      return bestOrgModel.name === model;
-  }
-}
 
 export const modelMetadata: Record<string, ModelMetadata> = {
   "amazon-nova-lite-v1.0": { price: 0.06 + 2 * 0.24, organization: "Amazon" },

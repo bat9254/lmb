@@ -1,12 +1,7 @@
 <script lang="ts">
-  import {
-    modelMetadata,
-    type FilterStrategy,
-    type PriceRange,
-    shouldShowModel,
-    getPriceRange,
-    type ModelMetadata,
-  } from "./model-metadata";
+  import { modelMetadata, type FilterStrategy, type PriceRange } from "./model-metadata";
+  import { filterModels } from "./model-filtering";
+  import ScatterChart from "./ScatterChart.svelte";
 
   export let board: Record<string, Record<string, any>>;
   export let category: string;
@@ -18,94 +13,14 @@
   export let selectedPriceRanges: Set<PriceRange>;
 
   $: categoryName = `${category}${styleControl ? "_style_control" : ""}`;
-
-  let models: Array<{ name: string; rating: number; ciLow: number; ciHigh: number; rank: number }> =
-    [];
-  $: {
-    models = [];
-    for (const [name, rating] of Object.entries(board[categoryName]?.elo_rating_final || {})) {
-      // Get bootstrap samples for this model
-      const samples = board[categoryName]?.bootstrap_df?.[name] || {};
-      const sampleValues = Object.values(samples) as number[];
-
-      // Calculate confidence intervals from bootstrap if available
-      let ciLow = 0,
-        ciHigh = 0;
-      if (sampleValues.length > 0) {
-        const sorted = [...sampleValues].sort((a, b) => a - b);
-        const lowIndex = Math.floor(sorted.length * 0.025); // 2.5 percentile
-        const highIndex = Math.floor(sorted.length * 0.975); // 97.5 percentile
-        ciLow = Number(sorted[lowIndex]) || Number(rating);
-        ciHigh = Number(sorted[highIndex]) || Number(rating);
-      } else {
-        // // Fallback to normal distribution approximation
-        // const variance = Number(board[categoryName]?.leaderboard_table_df?.variance?.[name]) || 0;
-        // const ci = Math.sqrt(variance) * 1.96;
-        // ciLow = Number(rating) - ci;
-        // ciHigh = Number(rating) + ci;
-      }
-
-      models.push({
-        name,
-        rating: Number(rating),
-        ciLow,
-        ciHigh,
-        rank: 0, // Will be calculated below
-      });
-    }
-
-    models.sort((a, b) => b.rating - a.rating);
-
-    let rank = 1;
-    let ciLow: number | undefined;
-    for (const [i, model] of Object.entries(models)) {
-      if (!ciLow) {
-        ciLow = model.ciLow;
-      }
-      if (model.ciHigh < ciLow) {
-        ciLow = model.ciLow;
-        rank = +i + 1;
-      }
-
-      model.rank = rank;
-    }
-
-    // Apply filters in stages
-    models = models.filter((model) => {
-      const name = model.name.toLowerCase();
-      const tests = searches.filter(Boolean);
-      if (tests.length == 0) return true;
-      return tests.some((test) => name.includes(test.toLowerCase()));
-    });
-
-    // Apply open-only filter before strategy filter if enabled
-    if (showOpenOnly) {
-      models = models.filter((model) => {
-        const metadata = modelMetadata[model.name];
-        return metadata?.isOpen == true;
-      });
-    }
-
-    // Apply price filter
-    models = models.filter((model) => {
-      if (selectedPriceRanges.size == 0) return true;
-
-      const metadata = modelMetadata[model.name];
-      const avgPrice = metadata?.price;
-      const priceRange = avgPrice && getPriceRange(avgPrice / 3);
-
-      if (!priceRange) return false;
-      return selectedPriceRanges.has(priceRange);
-    });
-
-    // Apply strategy filter last
-    if (filterStrategy != "showAll") {
-      models = models.filter((model) => {
-        const metadata = modelMetadata[model.name];
-        return !metadata || shouldShowModel(model.name, metadata, filterStrategy, models);
-      });
-    }
-  }
+  $: models = filterModels(
+    board,
+    categoryName,
+    searches,
+    showOpenOnly,
+    filterStrategy,
+    selectedPriceRanges
+  );
 
   function formatCI(rating: number, low: number, high: number): string {
     const minus = Math.round(rating - low);
@@ -116,12 +31,10 @@
   function getModelLink(name: string) {
     const metadata = modelMetadata[name];
 
-    // Check if model is open source - default to HuggingFace
     if (metadata?.isOpen) {
       return `https://huggingface.co/models?search=${encodeURIComponent(name)}`;
     }
 
-    // Map organizations to their documentation URLs
     const orgToUrl: Record<string, string> = {
       OpenAI: "https://platform.openai.com/docs/models/",
       Anthropic: "https://www.anthropic.com/claude",
@@ -133,7 +46,6 @@
       "01": "https://www.01.ai/",
     };
 
-    // If we have organization metadata, use that first
     if (metadata?.organization && metadata.organization in orgToUrl) {
       return orgToUrl[metadata.organization];
     }
@@ -168,7 +80,7 @@
         <td>{rank}</td>
         <td>
           {#if link}
-            <a href={getModelLink(name)} target="_blank" rel="noopener noreferrer">
+            <a href={link} target="_blank" rel="noopener noreferrer">
               {@render text()}
             </a>
           {:else}
@@ -181,6 +93,8 @@
     {/each}
   </tbody>
 </table>
+
+<ScatterChart {models} />
 
 <style>
   table {
