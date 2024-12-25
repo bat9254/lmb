@@ -135,7 +135,13 @@ coming soon:
       <span>Drop similar models</span>
       <SegmentedButtonContainer>
         {#each ["showAll", "hideDeprecated", "hideOld", "onePerOrg"] as FilterStrategy[] as strategy}
-          <input type="radio" bind:group={filterStrategy} value={strategy} id={strategy} />
+          <input
+            type="radio"
+            name="filterStrategy"
+            bind:group={filterStrategy}
+            value={strategy}
+            id={strategy}
+          />
           <SegmentedButtonItem input={strategy}>
             {getFilterDescription(strategy)}
           </SegmentedButtonItem>

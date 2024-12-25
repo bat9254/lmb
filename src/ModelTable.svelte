@@ -68,12 +68,12 @@
     }
 
     // Apply filters in stages
-    if (searches.length > 0) {
-      models = models.filter((model) => {
-        const name = model.name.toLowerCase();
-        return searches.some((search) => name.includes(search.toLowerCase()));
-      });
-    }
+    models = models.filter((model) => {
+      const name = model.name.toLowerCase();
+      const tests = searches.filter(Boolean);
+      if (tests.length == 0) return true;
+      return tests.some((test) => name.includes(test.toLowerCase()));
+    });
 
     // Apply open-only filter before strategy filter if enabled
     if (showOpenOnly) {
