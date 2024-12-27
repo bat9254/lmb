@@ -10,15 +10,15 @@ function shouldShowModel(
   model: string,
   metadata: ModelMetadata,
   strategy: FilterStrategy,
-  allModels: Array<{ name: string; rating: number }>,
+  allModels: Array<{ name: string; rating: number }>
 ): boolean {
   switch (strategy) {
     case "showAll":
       return true;
     case "hideDeprecated":
-      return !metadata.successed;
+      return !metadata.deprecated;
     case "hideOld": {
-      if (metadata.successed) return false;
+      if (metadata.deprecated) return false;
       if (!metadata.organization || !metadata.price) return true;
 
       const thisModelScore = allModels.find((m) => m.name === model)?.rating;
@@ -37,10 +37,10 @@ function shouldShowModel(
     case "onePerOrg":
       if (!metadata.organization) return true;
       const orgModels = allModels.filter(
-        (m) => modelMetadata[m.name]?.organization === metadata.organization,
+        (m) => modelMetadata[m.name]?.organization === metadata.organization
       );
       const bestOrgModel = orgModels.reduce((best, current) =>
-        current.rating > best.rating ? current : best,
+        current.rating > best.rating ? current : best
       );
       return bestOrgModel.name === model;
   }
@@ -60,12 +60,14 @@ export function filterModels(
   searches: string[],
   showOpenOnly: boolean,
   filterStrategy: FilterStrategy,
-  selectedPriceRanges: Set<PriceRange>,
+  selectedPriceRanges: Set<PriceRange>
 ): ModelData[] {
   let models: ModelData[] = [];
 
   // Build initial model data
-  for (const [name, rating] of Object.entries(board[categoryName]?.elo_rating_final || {})) {
+  for (const [name, rating] of Object.entries(
+    board[categoryName]?.elo_rating_final || {}
+  )) {
     const samples = board[categoryName]?.bootstrap_df?.[name] || {};
     const sampleValues = Object.values(samples) as number[];
 
@@ -130,7 +132,10 @@ export function filterModels(
   if (filterStrategy != "showAll") {
     models = models.filter((model) => {
       const metadata = modelMetadata[model.name];
-      return !metadata || shouldShowModel(model.name, metadata, filterStrategy, models);
+      return (
+        !metadata ||
+        shouldShowModel(model.name, metadata, filterStrategy, models)
+      );
     });
   }
 
