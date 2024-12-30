@@ -110,8 +110,18 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   "deepseek-coder-v2-0724": { deprecated: true, isOpen: true, organization: "DeepSeek" },
   "deepseek-llm-67b-chat": { deprecated: true, isOpen: true, organization: "DeepSeek" },
   "deepseek-v2-api-0628": { deprecated: true, isOpen: true, organization: "DeepSeek" },
-  "deepseek-v2.5": { price: 2 * 0.14 + 0.28, isOpen: true, organization: "DeepSeek" },
-  "deepseek-v2.5-1210": { price: 2 * 0.14 + 0.28, isOpen: true, organization: "DeepSeek" },
+  "deepseek-v2.5": {
+    price: 2 * 0.14 + 0.28,
+    deprecated: true,
+    isOpen: true,
+    organization: "DeepSeek",
+  },
+  "deepseek-v2.5-1210": {
+    price: 2 * 0.14 + 0.28,
+    deprecated: true,
+    isOpen: true,
+    organization: "DeepSeek",
+  },
   "deepseek-v3": { price: 2 * 0.14 + 0.28, isOpen: true, organization: "DeepSeek" }, // this price needs to be updated in the future
   "dolly-v2-12b": { isOpen: true },
   "falcon-180b-chat": { isOpen: true },
