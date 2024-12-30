@@ -5,16 +5,10 @@ export interface ModelMetadata {
   price?: number;
 }
 
-export type FilterStrategy =
-  | "showAll"
-  | "hideDeprecated"
-  | "hideOld"
-  | "onePerOrg";
+export type FilterStrategy = "showAll" | "hideDeprecated" | "hideOld" | "onePerOrg";
 export type PriceRange = "$" | "$$" | "$$$" | "$$$$";
 
-export function getPriceRange(
-  price: number | undefined
-): PriceRange | undefined {
+export function getPriceRange(price: number | undefined): PriceRange | undefined {
   if (price === undefined) return undefined;
   if (price < 0.2) return "$";
   if (price < 1) return "$$";
@@ -112,36 +106,13 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     organization: "Cohere",
   },
   "dbrx-instruct-preview": { isOpen: true },
-  "deepseek-coder-v2": {
-    deprecated: true,
-    isOpen: true,
-    organization: "DeepSeek",
-  },
-  "deepseek-coder-v2-0724": {
-    deprecated: true,
-    isOpen: true,
-    organization: "DeepSeek",
-  },
-  "deepseek-llm-67b-chat": {
-    deprecated: true,
-    isOpen: true,
-    organization: "DeepSeek",
-  },
-  "deepseek-v2-api-0628": {
-    deprecated: true,
-    isOpen: true,
-    organization: "DeepSeek",
-  },
-  "deepseek-v2.5": {
-    price: 2 * 0.14 + 0.28,
-    isOpen: true,
-    organization: "DeepSeek",
-  },
-  "deepseek-v2.5-1210": {
-    price: 2 * 0.14 + 0.28,
-    isOpen: true,
-    organization: "DeepSeek",
-  },
+  "deepseek-coder-v2": { deprecated: true, isOpen: true, organization: "DeepSeek" },
+  "deepseek-coder-v2-0724": { deprecated: true, isOpen: true, organization: "DeepSeek" },
+  "deepseek-llm-67b-chat": { deprecated: true, isOpen: true, organization: "DeepSeek" },
+  "deepseek-v2-api-0628": { deprecated: true, isOpen: true, organization: "DeepSeek" },
+  "deepseek-v2.5": { price: 2 * 0.14 + 0.28, isOpen: true, organization: "DeepSeek" },
+  "deepseek-v2.5-1210": { price: 2 * 0.14 + 0.28, isOpen: true, organization: "DeepSeek" },
+  "deepseek-v3": { price: 2 * 0.14 + 0.28, isOpen: true, organization: "DeepSeek" }, // this price needs to be updated in the future
   "dolly-v2-12b": { isOpen: true },
   "falcon-180b-chat": { isOpen: true },
   "fastchat-t5-3b": { isOpen: true },
@@ -346,6 +317,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   "nous-hermes-2-mixtral-8x7b-dpo": { isOpen: true },
   "o1-mini": { price: 2 * 3 + 12 * 4, organization: "OpenAI" },
   "o1-preview": { price: 2 * 15 + 60 * 4, organization: "OpenAI" },
+  "o1-2024-12-17": { price: 2 * 15 + 60 * 4, organization: "OpenAI" },
   "oasst-pythia-12b": { isOpen: true },
   "olmo-7b-instruct": { isOpen: true },
   "openchat-3.5": { isOpen: true },
