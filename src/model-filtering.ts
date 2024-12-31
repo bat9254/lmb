@@ -10,7 +10,7 @@ function shouldShowModel(
   model: string,
   metadata: ModelMetadata,
   strategy: FilterStrategy,
-  allModels: Array<{ name: string; rating: number }>
+  allModels: Array<{ name: string; rating: number }>,
 ): boolean {
   switch (strategy) {
     case "showAll":
@@ -37,10 +37,10 @@ function shouldShowModel(
     case "onePerOrg":
       if (!metadata.organization) return true;
       const orgModels = allModels.filter(
-        (m) => modelMetadata[m.name]?.organization === metadata.organization
+        (m) => modelMetadata[m.name]?.organization === metadata.organization,
       );
       const bestOrgModel = orgModels.reduce((best, current) =>
-        current.rating > best.rating ? current : best
+        current.rating > best.rating ? current : best,
       );
       return bestOrgModel.name === model;
   }
@@ -60,14 +60,12 @@ export function filterModels(
   searches: string[],
   showOpenOnly: boolean,
   filterStrategy: FilterStrategy,
-  selectedPriceRanges: Set<PriceRange>
+  selectedPriceRanges: Set<PriceRange>,
 ): ModelData[] {
   let models: ModelData[] = [];
 
   // Build initial model data
-  for (const [name, rating] of Object.entries(
-    board[categoryName]?.elo_rating_final || {}
-  )) {
+  for (const [name, rating] of Object.entries(board[categoryName]?.elo_rating_final || {})) {
     const samples = board[categoryName]?.bootstrap_df?.[name] || {};
     const sampleValues = Object.values(samples) as number[];
 
@@ -90,6 +88,14 @@ export function filterModels(
     });
   }
 
+  // Drop some models
+  if (filterStrategy != "showAll") {
+    models = models.filter((model) => {
+      const metadata = modelMetadata[model.name];
+      return !metadata || shouldShowModel(model.name, metadata, filterStrategy, models);
+    });
+  }
+
   // Sort and assign ranks
   models.sort((a, b) => b.rating - a.rating);
   let rank = 1;
@@ -105,7 +111,7 @@ export function filterModels(
     model.rank = rank;
   }
 
-  // Apply filters
+  // Apply other filters
   models = models.filter((model) => {
     const name = model.name.toLowerCase();
     const tests = searches.filter(Boolean);
@@ -128,16 +134,6 @@ export function filterModels(
     if (!priceRange) return false;
     return selectedPriceRanges.has(priceRange);
   });
-
-  if (filterStrategy != "showAll") {
-    models = models.filter((model) => {
-      const metadata = modelMetadata[model.name];
-      return (
-        !metadata ||
-        shouldShowModel(model.name, metadata, filterStrategy, models)
-      );
-    });
-  }
 
   return models;
 }
