@@ -19,7 +19,7 @@
     searches,
     showOpenOnly,
     filterStrategy,
-    selectedPriceRanges
+    selectedPriceRanges,
   );
 
   function formatCI(rating: number, low: number, high: number): string {
@@ -37,8 +37,10 @@
 
     const orgToUrl: Record<string, string> = {
       OpenAI: "https://platform.openai.com/docs/models/",
+      Amazon: "https://docs.aws.amazon.com/nova/latest/userguide/what-is-nova.html",
       Anthropic: "https://www.anthropic.com/claude",
       Google: "https://ai.google.dev/models/",
+      Deepseek: "https://www.deepseek.com/",
       Meta: "https://ai.meta.com/llama/",
       Mistral: "https://mistral.ai/",
       Qwen: "https://huggingface.co/Qwen/",
