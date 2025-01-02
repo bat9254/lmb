@@ -7,7 +7,8 @@
   export let category: string;
   export let styleControl: boolean;
   export let searches: string[];
-  export let showEloGaps = false;
+  export let vizBorder = false;
+  export let vizBar = false;
   export let showOpenOnly = false;
   export let filterStrategy: FilterStrategy = "showAll";
   export let selectedPriceRanges: Set<PriceRange>;
@@ -21,6 +22,7 @@
     filterStrategy,
     selectedPriceRanges,
   );
+  $: maxRating = Math.max(...models.map((m) => m.rating));
 
   function formatCI(rating: number, low: number, high: number): string {
     const minus = Math.round(rating - low);
@@ -75,7 +77,8 @@
         {/if}
       {/snippet}
       <tr
-        style:--padding={showEloGaps && i > 0
+        class:short={vizBorder}
+        style:--padding={vizBorder && i > 0
           ? `${2 * Math.min(Math.max(models[i - 1].rating - rating, 0), 300) + 1}px`
           : "1px"}
       >
@@ -89,7 +92,18 @@
             {@render text()}
           {/if}
         </td>
-        <td>{Math.round(rating)}</td>
+        <td>
+          {#if vizBar}
+            <div
+              class="viz-bar"
+              style:width="{Math.max((rating - 1100) / (maxRating - 1100), 0) * 56 + 4}vw"
+            >
+              {Math.round(rating)}
+            </div>
+          {:else}
+            {Math.round(rating)}
+          {/if}
+        </td>
         <td>{formatCI(rating, ciLow, ciHigh)}</td>
       </tr>
     {/each}
@@ -144,5 +158,18 @@
     color: rgb(var(--m3-scheme-on-tertiary-container));
     margin-left: 0.5rem;
     vertical-align: middle;
+  }
+
+  .viz-bar {
+    background-color: rgb(var(--m3-scheme-secondary));
+    color: rgb(var(--m3-scheme-on-secondary));
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+  }
+  .short td {
+    padding: 0.25rem 0.5rem;
+  }
+  .short .viz-bar {
+    padding: 0.25rem 0.5rem;
   }
 </style>

@@ -26,7 +26,8 @@
     styleControl = false;
   let searches: string[] = [];
   let settingsOpen = false;
-  let showEloGaps = false;
+  let vizBorder = false;
+  let vizBar = false;
   let showOpenOnly = false;
   let filterStrategy: FilterStrategy = "hideDeprecated";
   let selectedPriceRanges = new Set<PriceRange>();
@@ -121,7 +122,8 @@ coming soon:
   {category}
   {styleControl}
   {searches}
-  {showEloGaps}
+  {vizBorder}
+  {vizBar}
   {showOpenOnly}
   {filterStrategy}
   {selectedPriceRanges}
@@ -130,13 +132,19 @@ coming soon:
 <Dialog bind:open={settingsOpen} headline="Settings">
   <div class="settings-content">
     <label>
-      Show moats
-      <Switch bind:checked={showEloGaps} />
-    </label>
-    <label>
       Open models only
       <Switch bind:checked={showOpenOnly} />
     </label>
+
+    <div class="filter-section">
+      <span>Visualize scores</span>
+      <SegmentedButtonContainer>
+        <input type="checkbox" bind:checked={vizBorder} id="vizBorder" />
+        <SegmentedButtonItem input="vizBorder">With moats</SegmentedButtonItem>
+        <input type="checkbox" bind:checked={vizBar} id="vizBar" />
+        <SegmentedButtonItem input="vizBar">With charts</SegmentedButtonItem>
+      </SegmentedButtonContainer>
+    </div>
 
     <div class="filter-section">
       <span>Price ranges</span>
