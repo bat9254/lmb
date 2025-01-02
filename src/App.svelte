@@ -26,8 +26,8 @@
     styleControl = false;
   let searches: string[] = [];
   let settingsOpen = false;
-  let vizBorder = false;
-  let vizBar = false;
+  let vizBorder = JSON.parse(localStorage["vizBorder"] || "false");
+  let vizBar = JSON.parse(localStorage["vizBar"] || "false");
   let showOpenOnly = false;
   let filterStrategy: FilterStrategy = "hideDeprecated";
   let selectedPriceRanges = new Set<PriceRange>();
@@ -56,7 +56,6 @@
     },
     vision: { Overall: "full", English: "english", Chinese: "chinese" },
   };
-  console.log(textBoard);
 
   const categoryName = (category: string, styleControl: boolean) =>
     `${category}${styleControl ? "_style_control" : ""}`;
@@ -74,15 +73,14 @@
     }
   };
   $: category, vision, styleControl, normalizeStep();
+  $: localStorage["vizBorder"] = JSON.stringify(vizBorder);
+  $: localStorage["vizBar"] = JSON.stringify(vizBar);
 </script>
 
 <!--
 coming soon:
-- price data
-- filter by price data
-- graph price data
 - view what each model's strengths are in a normalized view
-- maybe better filtering (options for filter to open, and filter by price in one place)
+- maybe "what's the generally optimal model curve"
 -->
 <div class="search">
   <select bind:value={category}>
