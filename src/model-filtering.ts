@@ -88,25 +88,25 @@ export function filterModels(
     });
   }
 
-  // Drop some models
-  if (filterStrategy != "showAll") {
-    models = models.filter((model) => {
-      const metadata = modelMetadata[model.name];
-      return !metadata || shouldShowModel(model.name, metadata, filterStrategy, models);
-    });
-  }
-
   // Sort and assign ranks
   models.sort((a, b) => b.rating - a.rating);
   let rank = 1;
+  let nextRank = 1;
   let ciLow: number | undefined;
-  for (const [i, model] of Object.entries(models)) {
+  for (const model of models) {
     if (!ciLow) {
       ciLow = model.ciLow;
     }
-    if (model.ciHigh < ciLow) {
-      ciLow = model.ciLow;
-      rank = +i + 1;
+    const metadata = modelMetadata[model.name];
+    const isFilteredOut =
+      filterStrategy != "showAll" &&
+      (!metadata || !shouldShowModel(model.name, metadata, filterStrategy, models));
+    if (!isFilteredOut) {
+      if (model.ciHigh < ciLow) {
+        ciLow = model.ciLow;
+        rank = nextRank;
+      }
+      nextRank++;
     }
     model.rank = rank;
   }
@@ -134,6 +134,13 @@ export function filterModels(
     if (!priceRange) return false;
     return selectedPriceRanges.has(priceRange);
   });
+
+  if (filterStrategy != "showAll") {
+    models = models.filter((model) => {
+      const metadata = modelMetadata[model.name];
+      return !metadata || shouldShowModel(model.name, metadata, filterStrategy, models);
+    });
+  }
 
   return models;
 }
