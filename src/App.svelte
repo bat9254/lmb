@@ -26,9 +26,10 @@
     styleControl = false;
   let searches: string[] = [];
   let settingsOpen = false;
+  let showOpenOnly = false;
   let vizBorder = JSON.parse(localStorage["vizBorder"] || "false");
   let vizBar = JSON.parse(localStorage["vizBar"] || "false");
-  let showOpenOnly = false;
+  let rankStrategy = "comparable";
   let filterStrategy: FilterStrategy = "hideDeprecated";
   let selectedPriceRanges = new Set<PriceRange>();
 
@@ -120,9 +121,10 @@ coming soon:
   {category}
   {styleControl}
   {searches}
+  {showOpenOnly}
   {vizBorder}
   {vizBar}
-  {showOpenOnly}
+  {rankStrategy}
   {filterStrategy}
   {selectedPriceRanges}
 />
@@ -134,13 +136,35 @@ coming soon:
       <Switch bind:checked={showOpenOnly} />
     </label>
 
-    <div class="filter-section">
+    <div class="filter-section-inline">
       <span>Visualize scores</span>
       <SegmentedButtonContainer>
         <input type="checkbox" bind:checked={vizBorder} id="vizBorder" />
         <SegmentedButtonItem input="vizBorder">With moats</SegmentedButtonItem>
         <input type="checkbox" bind:checked={vizBar} id="vizBar" />
         <SegmentedButtonItem input="vizBar">With charts</SegmentedButtonItem>
+      </SegmentedButtonContainer>
+    </div>
+
+    <div class="filter-section">
+      <span>Ranks are the same when</span>
+      <SegmentedButtonContainer>
+        <input
+          type="radio"
+          name="rankStrategy"
+          bind:group={rankStrategy}
+          value="comparable"
+          id="comparable"
+        />
+        <SegmentedButtonItem input="comparable">~50% chance of losing</SegmentedButtonItem>
+        <input
+          type="radio"
+          name="rankStrategy"
+          bind:group={rankStrategy}
+          value="league"
+          id="league"
+        />
+        <SegmentedButtonItem input="league">~40% chance of losing</SegmentedButtonItem>
       </SegmentedButtonContainer>
     </div>
 
@@ -213,14 +237,27 @@ coming soon:
     flex-direction: column;
     gap: 0.5rem;
     padding-top: 0.375rem;
+
+    span {
+      color: rgb(var(--m3-scheme-on-surface-variant));
+    }
+    :global(label) {
+      flex-grow: 1;
+    }
   }
 
-  .settings-content .filter-section span {
-    color: rgb(var(--m3-scheme-on-surface-variant));
-  }
+  .settings-content .filter-section-inline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
 
-  .settings-content .filter-section :global(label) {
-    flex-grow: 1;
+    span {
+      color: rgb(var(--m3-scheme-on-surface-variant));
+    }
+    :global(label) {
+      flex-grow: 1;
+    }
   }
 
   .search {

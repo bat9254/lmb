@@ -22,7 +22,7 @@ def convert_to_serializable(obj):
 
 def convert_pickle_to_json():
     """Convert pickle file to JSON, handling numpy and pandas objects."""
-    with open('handling/elo_results_20241230.pkl', 'rb') as f:
+    with open('handling/elo_results_20250105.pkl', 'rb') as f:
         data = pickle.load(f)
 
     serializable_data = convert_to_serializable(data)

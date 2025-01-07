@@ -7,10 +7,11 @@
   export let category: string;
   export let styleControl: boolean;
   export let searches: string[];
+  export let showOpenOnly = false;
   export let vizBorder = false;
   export let vizBar = false;
-  export let showOpenOnly = false;
-  export let filterStrategy: FilterStrategy = "showAll";
+  export let rankStrategy: string;
+  export let filterStrategy: FilterStrategy;
   export let selectedPriceRanges: Set<PriceRange>;
 
   $: categoryName = `${category}${styleControl ? "_style_control" : ""}`;
@@ -19,6 +20,7 @@
     categoryName,
     searches,
     showOpenOnly,
+    rankStrategy,
     filterStrategy,
     selectedPriceRanges,
   );

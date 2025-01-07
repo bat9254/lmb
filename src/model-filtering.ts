@@ -59,6 +59,7 @@ export function filterModels(
   categoryName: string,
   searches: string[],
   showOpenOnly: boolean,
+  rankStrategy: string,
   filterStrategy: FilterStrategy,
   selectedPriceRanges: Set<PriceRange>,
 ): ModelData[] {
@@ -92,18 +93,31 @@ export function filterModels(
   models.sort((a, b) => b.rating - a.rating);
   let rank = 1;
   let nextRank = 1;
-  let ciLow: number | undefined;
+  let bar: number | undefined;
   for (const model of models) {
-    if (!ciLow) {
-      ciLow = model.ciLow;
+    let thisBar;
+    let thisScore;
+    if (rankStrategy == "league") {
+      thisBar = model.rating - 70;
+    } else {
+      thisBar = model.ciLow;
+    }
+    if (rankStrategy == "league") {
+      thisScore = model.rating;
+    } else {
+      thisScore = model.ciHigh;
+    }
+
+    if (!bar) {
+      bar = thisBar;
     }
     const metadata = modelMetadata[model.name];
     const isFilteredOut =
       filterStrategy != "showAll" &&
       (!metadata || !shouldShowModel(model.name, metadata, filterStrategy, models));
     if (!isFilteredOut) {
-      if (model.ciHigh < ciLow) {
-        ciLow = model.ciLow;
+      if (thisScore < bar) {
+        bar = thisBar;
         rank = nextRank;
       }
       nextRank++;
