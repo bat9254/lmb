@@ -98,7 +98,7 @@
           {#if vizBar}
             <div
               class="viz-bar"
-              style:width="{Math.max((rating - 1100) / (maxRating - 1100), 0) * 56 + 4}vw"
+              style:width="{Math.max((rating - 1000) / (maxRating - 1000), 0) * 56 + 4}vw"
             >
               {Math.round(rating)}
             </div>
