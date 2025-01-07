@@ -67,24 +67,13 @@ export function filterModels(
 
   // Build initial model data
   for (const [name, rating] of Object.entries(board[categoryName]?.elo_rating_final || {})) {
-    const samples = board[categoryName]?.bootstrap_df?.[name] || {};
-    const sampleValues = Object.values(samples) as number[];
-
-    let ciLow = 0,
-      ciHigh = 0;
-    if (sampleValues.length > 0) {
-      const sorted = [...sampleValues].sort((a, b) => a - b);
-      const lowIndex = Math.floor(sorted.length * 0.025);
-      const highIndex = Math.floor(sorted.length * 0.975);
-      ciLow = Number(sorted[lowIndex]) || Number(rating);
-      ciHigh = Number(sorted[highIndex]) || Number(rating);
-    }
-
+    const ci = board[categoryName]?.confidence_intervals?.[name] || {};
+    
     models.push({
       name,
       rating: Number(rating),
-      ciLow,
-      ciHigh,
+      ciLow: Number(ci.low) || Number(rating),
+      ciHigh: Number(ci.high) || Number(rating),
       rank: 0,
     });
   }
