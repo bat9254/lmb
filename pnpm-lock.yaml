@@ -22,8 +22,8 @@ importers:
         specifier: ^5.0.4
         version: 5.0.4
       m3-svelte:
-        specifier: ^3.4.5
-        version: 3.4.5
+        specifier: ^3.4.6
+        version: 3.4.6
       prettier:
         specifier: ^3.4.2
         version: 3.4.2
@@ -213,9 +213,6 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
-
-  '@ktibow/iconset-material-symbols@0.0.1732258297':
-    resolution: {integrity: sha512-cX/0OZdjHl3avZhGrLwBovaawN8F39fE3/wI3H/6smAjiB6aSJtlPUplfRi1T2wQV16vo61n3EIu9CHv8aLquA==}
 
   '@ktibow/iconset-material-symbols@0.0.1733470085':
     resolution: {integrity: sha512-9hFC5MjiPbLiTMVbKNIHjZCrGerg5huqZzFHvDvLkhCDH5jg7ELneaAmq3vcxHE8qwODzm4ivgnMth/70/1cOg==}
@@ -419,8 +416,8 @@ packages:
   locate-character@3.0.0:
     resolution: {integrity: sha512-SW13ws7BjaeJ6p7Q6CO2nchbYEc3X3J6WrmTTDto7yMPqVSZTUyY5Tjbid+Ab8gLnATtygYtiDIJGQRRn2ZOiA==}
 
-  m3-svelte@3.4.5:
-    resolution: {integrity: sha512-jPyP0xCuChtlLqfTkD/sTZBtek3JR2D9+ADGXMo7UnYKM32QGuDYsDsWp2QLkdb6p6ijjfxEew0QkvL1JG7CyA==}
+  m3-svelte@3.4.6:
+    resolution: {integrity: sha512-7KCr56BjcYK9cdGNTyGPShtL3czCxiSLa897CidfxdYUhrQ37khFrCMDwXxK7idKfCC14/E7GL9Vi9azxaofVg==}
 
   magic-string@0.30.17:
     resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
@@ -638,10 +635,6 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@ktibow/iconset-material-symbols@0.0.1732258297':
-    dependencies:
-      '@iconify/types': 2.0.0
-
   '@ktibow/iconset-material-symbols@0.0.1733470085':
     dependencies:
       '@iconify/types': 2.0.0
@@ -805,10 +798,10 @@ snapshots:
 
   locate-character@3.0.0: {}
 
-  m3-svelte@3.4.5:
+  m3-svelte@3.4.6:
     dependencies:
       '@iconify/types': 2.0.0
-      '@ktibow/iconset-material-symbols': 0.0.1732258297
+      '@ktibow/iconset-material-symbols': 0.0.1733470085
       '@material/material-color-utilities': 0.3.0
       svelte: 5.16.0
 

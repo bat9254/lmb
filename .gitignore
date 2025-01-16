@@ -1,3 +1,4 @@
 node_modules
 handling/*.pkl
+build
 .DS_Store

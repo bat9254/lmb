@@ -23,12 +23,12 @@
 
   let category = "full",
     vision = false,
-    styleControl = JSON.parse(localStorage["styleControl"] || "true");
+    styleControl = JSON.parse(localStorage["lmb-styleControl"] || "true");
   let searches: string[] = [];
   let settingsOpen = false;
   let showOpenOnly = false;
-  let vizBorder = JSON.parse(localStorage["vizBorder"] || "false");
-  let vizBar = JSON.parse(localStorage["vizBar"] || "true");
+  let vizBorder = JSON.parse(localStorage["lmb-vizBorder"] || "false");
+  let vizBar = JSON.parse(localStorage["lmb-vizBar"] || "false");
   let rankStrategy = "comparable";
   let filterStrategy: FilterStrategy = "hideDeprecated";
   let selectedPriceRanges = new Set<PriceRange>();
@@ -266,6 +266,7 @@ coming soon:
     gap: 0.5rem;
     height: 2.5rem;
     align-self: center;
+    max-width: 100dvw;
   }
   .search > * {
     background-color: rgb(var(--m3-scheme-surface-container));
