@@ -23,12 +23,12 @@
 
   let category = "full",
     vision = false,
-    styleControl = false;
+    styleControl = JSON.parse(localStorage["styleControl"] || "true");
   let searches: string[] = [];
   let settingsOpen = false;
   let showOpenOnly = false;
   let vizBorder = JSON.parse(localStorage["vizBorder"] || "false");
-  let vizBar = JSON.parse(localStorage["vizBar"] || "false");
+  let vizBar = JSON.parse(localStorage["vizBar"] || "true");
   let rankStrategy = "comparable";
   let filterStrategy: FilterStrategy = "hideDeprecated";
   let selectedPriceRanges = new Set<PriceRange>();
@@ -74,8 +74,9 @@
     }
   };
   $: category, vision, styleControl, normalizeStep();
-  $: localStorage["vizBorder"] = JSON.stringify(vizBorder);
-  $: localStorage["vizBar"] = JSON.stringify(vizBar);
+  $: localStorage["lmb-vizBorder"] = JSON.stringify(vizBorder);
+  $: localStorage["lmb-vizBar"] = JSON.stringify(vizBar);
+  $: localStorage["lmb-styleControl"] = JSON.stringify(styleControl);
 </script>
 
 <!--
