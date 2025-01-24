@@ -32,7 +32,7 @@ def calculate_confidence_intervals(samples):
 
 def convert_pickle_to_json():
     """Convert pickle file to JSON, handling numpy and pandas objects."""
-    with open('handling/elo_results_20250121.pkl', 'rb') as f:
+    with open('handling/elo_results_20250124.pkl', 'rb') as f:
         data = pickle.load(f)
 
     processed_data = {}
