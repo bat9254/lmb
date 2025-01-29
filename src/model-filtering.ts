@@ -68,7 +68,7 @@ export function filterModels(
   // Build initial model data
   for (const [name, rating] of Object.entries(board[categoryName]?.elo_rating_final || {})) {
     const ci = board[categoryName]?.confidence_intervals?.[name] || {};
-    
+
     models.push({
       name,
       rating: Number(rating),
@@ -97,14 +97,14 @@ export function filterModels(
       thisScore = model.ciHigh;
     }
 
-    if (!bar) {
-      bar = thisBar;
-    }
     const metadata = modelMetadata[model.name];
     const isFilteredOut =
       filterStrategy != "showAll" &&
       (!metadata || !shouldShowModel(model.name, metadata, filterStrategy, models));
     if (!isFilteredOut) {
+      if (!bar) {
+        bar = thisBar;
+      }
       if (thisScore < bar) {
         bar = thisBar;
         rank = nextRank;
