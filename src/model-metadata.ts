@@ -122,7 +122,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     isOpen: true,
     organization: "DeepSeek",
   },
-  "deepseek-r1": { price: 2 * 0.55 + 2.19 * 4, isOpen: true, organization: "Deepseek" },
+  "deepseek-r1": { price: 2 * 0.55 + 2.19 * 4, isOpen: true, organization: "DeepSeek" },
   "deepseek-v3": { price: 2 * 0.14 + 0.28, isOpen: true, organization: "DeepSeek" }, // this price needs to be updated in the future
   "dolly-v2-12b": { isOpen: true },
   "falcon-180b-chat": { isOpen: true },
