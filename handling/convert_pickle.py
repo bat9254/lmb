@@ -11,35 +11,30 @@ def get_latest_pickle_file():
     """Fetch the latest pickle file from HuggingFace repository."""
     api_url = "https://huggingface.co/api/spaces/lmarena-ai/chatbot-arena-leaderboard/tree/main"
 
-    try:
-        response = requests.get(api_url)
-        response.raise_for_status()
-        files = response.json()
+    response = requests.get(api_url)
+    response.raise_for_status()
+    files = response.json()
 
-        # Filter for pickle files and extract dates
-        pickle_files = []
-        for file in files:
-            if match := re.match(r'elo_results_(\d{8})\.pkl', file['path']):
-                date_str = match.group(1)
-                date = datetime.strptime(date_str, '%Y%m%d')
-                pickle_files.append((date, file['path']))
+    # Filter for pickle files and extract dates
+    pickle_files = []
+    for file in files:
+        if match := re.match(r'elo_results_(\d{8})\.pkl', file['path']):
+            date_str = match.group(1)
+            date = datetime.strptime(date_str, '%Y%m%d')
+            pickle_files.append((date, file['path']))
 
-        if not pickle_files:
-            raise Exception("No pickle files found in repository")
+    if not pickle_files:
+        raise Exception("No pickle files found in repository")
 
-        # Get the most recent file
-        latest_file = max(pickle_files, key=lambda x: x[0])[1]
+    # Get the most recent file
+    latest_file = max(pickle_files, key=lambda x: x[0])[1]
 
-        # Download the file content
-        raw_url = f"https://huggingface.co/spaces/lmarena-ai/chatbot-arena-leaderboard/resolve/main/{latest_file}"
-        response = requests.get(raw_url)
-        response.raise_for_status()
+    # Download the file content
+    raw_url = f"https://huggingface.co/spaces/lmarena-ai/chatbot-arena-leaderboard/resolve/main/{latest_file}"
+    response = requests.get(raw_url)
+    response.raise_for_status()
 
-        return pickle.loads(response.content)
-
-    except Exception as e:
-        print(f"Error fetching data: {e}")
-        return None
+    return pickle.loads(response.content)
 
 def convert_to_serializable(obj):
     """Convert numpy/pandas objects to JSON serializable types."""
@@ -70,9 +65,6 @@ def calculate_confidence_intervals(samples):
 
 """Convert pickle file to JSON, handling numpy and pandas objects."""
 data = get_latest_pickle_file()
-if data is None:
-    print("Failed to fetch data")
-    exit()
 
 processed_data = {}
 
