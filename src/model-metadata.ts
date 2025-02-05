@@ -397,7 +397,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     isOpen: true,
     organization: "Qwen",
   },
-  "qwen-max-2025-01-25": {
+  "qwen2.5-max": {
     price: 2 * 1.6 + 6.4,
     organization: "Qwen",
   },
