@@ -394,6 +394,10 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     isOpen: true,
     organization: "Qwen",
   },
+  "qwen-max-2025-01-25": {
+    price: 2 * 1.6 + 6.4,
+    organization: "Qwen",
+  },
   "reka-core-20240501": { deprecated: true, organization: "Reka AI" },
   "reka-core-20240722": { deprecated: true, organization: "Reka AI" },
   "reka-core-20240904": { organization: "Reka AI" },
