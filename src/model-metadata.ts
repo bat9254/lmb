@@ -333,6 +333,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   "o1-mini": { price: 2 * 3 + 12 * 4, organization: "OpenAI" },
   "o1-preview": { price: 2 * 15 + 60 * 4, organization: "OpenAI" },
   "o1-2024-12-17": { price: 2 * 15 + 60 * 4, organization: "OpenAI" },
+  "o3-mini": { price: 2 * 1.1 + 4.4 * 4, organization: "OpenAI" },
   "oasst-pythia-12b": { isOpen: true },
   "olmo-7b-instruct": { isOpen: true },
   "openchat-3.5": { isOpen: true },
