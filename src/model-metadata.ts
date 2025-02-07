@@ -143,7 +143,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   },
   "gemini-1.5-pro-exp-0801": { deprecated: true, organization: "Google" },
   "gemini-1.5-pro-exp-0827": { deprecated: true, organization: "Google" },
-  "gemini-2.0-flash-001": { price: 2 * 0.1 + 0.4, organization: "Google" },
+  "gemini-2.0-flash": { price: 2 * 0.1 + 0.4, organization: "Google" },
   "gemini-2.0-flash-exp": { deprecated: true, organization: "Google" },
   "gemini-2.0-flash-thinking-exp-01-21": { organization: "Google" },
   "gemini-2.0-flash-thinking-exp-1219": { deprecated: true, organization: "Google" },
