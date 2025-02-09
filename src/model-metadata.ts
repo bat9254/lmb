@@ -350,6 +350,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   "phi-3-small-8k-instruct": { isOpen: true, organization: "Microsoft" },
   "phi-3-vision-128k-instruct": { isOpen: true, organization: "Microsoft" },
   "phi-3.5-vision-instruct": { isOpen: true, organization: "Microsoft" },
+  "phi-4": { price: 2 * 0.07 + 0.14, isOpen: true, organization: "Microsoft" },
   "pixtral-12b-2409": {
     price: 2 * 0.1 + 0.1,
     isOpen: true,
