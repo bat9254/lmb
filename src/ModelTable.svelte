@@ -24,7 +24,7 @@
     filterStrategy,
     selectedPriceRanges,
   );
-  $: maxRating = Math.max(...models.map((m) => m.rating));
+  $: maxRating = Math.max(...models.map((m) => m.ciHigh));
 
   function formatCI(rating: number, low: number, high: number): string {
     const minus = Math.round(rating - low);
@@ -96,11 +96,13 @@
         </td>
         <td>
           {#if vizBar}
-            <div
-              class="viz-bar"
-              style:width="{Math.max((rating - 1000) / (maxRating - 1000), 0) * 56 + 4}vw"
-            >
-              {Math.round(rating)}
+            {@const pct1 = Math.max((ciLow - 1000) / (maxRating - 1000), 0) * 100}
+            {@const pct2 = Math.max((rating - 1000) / (maxRating - 1000), 0) * 100}
+            {@const pct3 = Math.max((ciHigh - 1000) / (maxRating - 1000), 0) * 100}
+            <div class="viz-bar">
+              <div class="shadow" style:left="{pct1}%" style:right="{100 - pct3}%"></div>
+              <div class="bar" style:left="0%" style:width="{pct2}%"></div>
+              <span>{Math.round(rating)}</span>
             </div>
           {:else}
             {Math.round(rating)}
@@ -163,15 +165,39 @@
   }
 
   .viz-bar {
-    background-color: rgb(var(--m3-scheme-secondary));
-    color: rgb(var(--m3-scheme-on-secondary));
-    padding: 0.5rem;
-    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    width: 60dvw;
+    height: 2rem;
+
+    position: relative;
+
+    .shadow {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background-color: rgb(var(--m3-scheme-secondary) / 0.2);
+      border-radius: 0.5rem;
+    }
+
+    .bar {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background-color: rgb(var(--m3-scheme-secondary) / 0.8);
+      border-radius: 0.5rem;
+    }
+
+    span {
+      color: rgb(var(--m3-scheme-on-secondary));
+      padding-left: 0.5rem;
+      z-index: 1;
+    }
   }
   .short td {
     padding: 0.25rem 0.5rem;
   }
   .short .viz-bar {
-    padding: 0.25rem 0.5rem;
+    height: 1.5rem;
   }
 </style>
