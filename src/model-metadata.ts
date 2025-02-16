@@ -384,6 +384,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     isOpen: true,
     organization: "Qwen",
   },
+  "qwen2.5-vl-72b-instruct": { isOpen: true, organization: "Qwen" },
   "qwen2.5-72b-instruct": {
     price: 2 * 0.23 + 0.4,
     isOpen: true,
