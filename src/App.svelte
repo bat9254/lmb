@@ -12,7 +12,7 @@
     Dialog,
     Switch,
   } from "m3-svelte";
-  import { text as textBoard, vision as visionBoard } from "./assets/results.json";
+  import { text as textBoard } from "./assets/results.json";
   import ModelTable from "./ModelTable.svelte";
   import {
     type FilterStrategy,
@@ -20,6 +20,7 @@
     getFilterDescription,
     getPriceRangeLabel,
   } from "./model-metadata";
+  const visionBoard = {}; // todo: get vision back
 
   let category = "full",
     vision = false,

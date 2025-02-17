@@ -68,33 +68,31 @@ data = get_latest_pickle_file()
 
 processed_data = {}
 
+processed_data["text"] = {}
 # Process each category (text/vision)
-for category_type, categories in data.items():
-    processed_data[category_type] = {}
+# Process each subcategory (full, english, etc)
+for category_name, category_data in data.items():
+    processed_data["text"][category_name] = {
+        'elo_rating_final': {},
+        'confidence_intervals': {}
+    }
 
-    # Process each subcategory (full, english, etc)
-    for category_name, category_data in categories.items():
-        processed_data[category_type][category_name] = {
-            'elo_rating_final': {},
-            'confidence_intervals': {}
-        }
+    # Process ratings and bootstrap data together
+    if 'elo_rating_final' in category_data and 'bootstrap_df' in category_data:
+        df = category_data['bootstrap_df']
 
-        # Process ratings and bootstrap data together
-        if 'elo_rating_final' in category_data and 'bootstrap_df' in category_data:
-            df = category_data['bootstrap_df']
+        for model, rating in category_data['elo_rating_final'].items():
+            rating = float(rating)
+            processed_data["text"][category_name]['elo_rating_final'][model] = round(rating, 2)
 
-            for model, rating in category_data['elo_rating_final'].items():
-                rating = float(rating)
-                processed_data[category_type][category_name]['elo_rating_final'][model] = round(rating, 2)
-
-                if model in df.columns:
-                    samples = df[model].astype(float).tolist()
-                    ci_low, ci_high = calculate_confidence_intervals(samples)
-                    if ci_low is not None and ci_high is not None:
-                        processed_data[category_type][category_name]['confidence_intervals'][model] = {
-                            'low': round(ci_low, 2),
-                            'high': round(ci_high, 2)
-                        }
+            if model in df.columns:
+                samples = df[model].astype(float).tolist()
+                ci_low, ci_high = calculate_confidence_intervals(samples)
+                if ci_low is not None and ci_high is not None:
+                    processed_data["text"][category_name]['confidence_intervals'][model] = {
+                        'low': round(ci_low, 2),
+                        'high': round(ci_high, 2)
+                    }
 
 with open('src/assets/results.json', 'w') as f:
     json.dump(processed_data, f)
