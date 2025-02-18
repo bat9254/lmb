@@ -208,6 +208,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   "granite-3.0-8b-instruct": { isOpen: true },
   "grok-2-2024-08-13": { price: 2 * 2 + 10, organization: "xAI" },
   "grok-2-mini-2024-08-13": { organization: "xAI" },
+  "early-grok-3": { organization: "xAI" },
   "guanaco-33b": { isOpen: true },
   "internlm2_5-20b-chat": { isOpen: true },
   "internvl2-26b": { isOpen: true },

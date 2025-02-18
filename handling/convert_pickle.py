@@ -68,28 +68,37 @@ data = get_latest_pickle_file()
 
 processed_data = {}
 
-processed_data["text"] = {}
 # Process each category (text/vision)
-# Process each subcategory (full, english, etc)
-for category_name, category_data in data.items():
-    processed_data["text"][category_name] = {
-        'elo_rating_final': {},
-        'confidence_intervals': {}
-    }
+for category_type, categories in data.items():
+    processed_data[category_type] = {}
 
-    # Process ratings and bootstrap data together
-    if 'elo_rating_final' in category_data and 'bootstrap_df' in category_data:
+    # Process each subcategory (full, english, etc)
+    for category_name, category_data in categories.items():
+        if 'elo_rating_final' not in category_data:
+            print("skipping", category_name)
+            continue
+        if 'bootstrap_df' not in category_data:
+            print("skipping", category_name)
+            continue
+
+        processed_data[category_type][category_name] = {
+            'elo_rating_final': {},
+            'confidence_intervals': {}
+        }
+        # print(category_data)
+
+        # Process ratings and bootstrap data together
         df = category_data['bootstrap_df']
 
         for model, rating in category_data['elo_rating_final'].items():
             rating = float(rating)
-            processed_data["text"][category_name]['elo_rating_final'][model] = round(rating, 2)
+            processed_data[category_type][category_name]['elo_rating_final'][model] = round(rating, 2)
 
             if model in df.columns:
                 samples = df[model].astype(float).tolist()
                 ci_low, ci_high = calculate_confidence_intervals(samples)
                 if ci_low is not None and ci_high is not None:
-                    processed_data["text"][category_name]['confidence_intervals'][model] = {
+                    processed_data[category_type][category_name]['confidence_intervals'][model] = {
                         'low': round(ci_low, 2),
                         'high': round(ci_high, 2)
                     }
