@@ -252,6 +252,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     isOpen: true,
     organization: "Meta",
   },
+  "llama-3.1-tulu-3-8b": { isOpen: true, organization: "Allen" },
   "llama-3.1-nemotron-51b-instruct": { isOpen: true, organization: "NVIDIA" },
   "llama-3.1-nemotron-70b-instruct": {
     price: 0.24 + 0.3,
@@ -318,6 +319,11 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   },
   "mistral-medium": { price: 2 * 2.75 + 8.1, organization: "Mistral" },
   "mistral-next": { organization: "Mistral" },
+  "mistral-small-24b-instruct-2501": {
+    price: 2 * 0.07 + 0.14,
+    isOpen: true,
+    organization: "Mistral",
+  },
   "mixtral-8x22b-instruct-v0.1": {
     price: 2 * 0.9 + 0.9,
     isOpen: true,
