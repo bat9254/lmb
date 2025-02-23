@@ -219,6 +219,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   "jamba-1.5-mini": { isOpen: true, organization: "AI21" },
   "koala-13b": { isOpen: true },
   "llama-13b": { deprecated: true, isOpen: true, organization: "Meta" },
+  "tulu-2-dpo-70b": { deprecated: true, isOpen: true, organization: "Allen" },
   "llama-2-13b-chat": { deprecated: true, isOpen: true, organization: "Meta" },
   "llama-2-70b-chat": { deprecated: true, isOpen: true, organization: "Meta" },
   "llama-2-7b-chat": { deprecated: true, isOpen: true, organization: "Meta" },
@@ -252,6 +253,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     isOpen: true,
     organization: "Meta",
   },
+  "llama-3.1-tulu-3-70b": { isOpen: true, organization: "Allen" },
   "llama-3.1-tulu-3-8b": { isOpen: true, organization: "Allen" },
   "llama-3.1-nemotron-51b-instruct": { isOpen: true, organization: "NVIDIA" },
   "llama-3.1-nemotron-70b-instruct": {
