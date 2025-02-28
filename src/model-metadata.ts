@@ -81,6 +81,10 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     price: 2 * 3 + 15,
     organization: "Anthropic",
   },
+  "claude-3-7-sonnet-20250219": {
+    price: 2 * 3 + 15,
+    organization: "Anthropic",
+  },
   "claude-3-haiku-20240307": {
     price: 2 * 0.25 + 1.25,
     organization: "Anthropic",
