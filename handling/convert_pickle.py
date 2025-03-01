@@ -103,5 +103,5 @@ for category_type, categories in data.items():
                         'high': round(ci_high, 2)
                     }
 
-with open('src/assets/results.json', 'w') as f:
+with open('src/routes/assets/results.json', 'w') as f:
     json.dump(processed_data, f)

@@ -23,7 +23,7 @@
     Tooltip,
   );
 
-  export let models: ModelData[];
+  let { models }: { models: ModelData[] } = $props();
 
   let chart: Chart | undefined;
 
@@ -127,11 +127,10 @@
     });
   }
 
-  $: models && window && setTimeout(updateChart, 0);
-
-  onMount(() => {
-    updateChart();
-
+  $effect(() => {
+    if (models && window) setTimeout(updateChart, 0);
+  });
+  $effect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     mediaQuery.addEventListener("change", updateChart);
 

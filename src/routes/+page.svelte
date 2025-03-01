@@ -20,15 +20,16 @@
     getFilterDescription,
     getPriceRangeLabel,
   } from "./model-metadata";
+  import { browser } from "$app/environment";
 
   let category = "full",
     vision = false,
-    styleControl = JSON.parse(localStorage["lmb-styleControl"] || "true");
+    styleControl = true;
   let searches: string[] = [];
   let settingsOpen = false;
   let showOpenOnly = false;
-  let vizBorder = JSON.parse(localStorage["lmb-vizBorder"] || "false");
-  let vizBar = JSON.parse(localStorage["lmb-vizBar"] || "false");
+  let vizBorder = false;
+  let vizBar = false;
   let rankStrategy = "comparable";
   let filterStrategy: FilterStrategy = "hideDeprecated";
   let selectedPriceRanges = new Set<PriceRange>();
@@ -74,16 +75,23 @@
     }
   };
   $: category, vision, styleControl, normalizeStep();
-  $: localStorage["lmb-vizBorder"] = JSON.stringify(vizBorder);
-  $: localStorage["lmb-vizBar"] = JSON.stringify(vizBar);
-  $: localStorage["lmb-styleControl"] = JSON.stringify(styleControl);
+
+  $: if (browser) {
+    if (localStorage["lmb-vizBorder"]) {
+      vizBorder = JSON.parse(localStorage["lmb-vizBorder"]);
+    }
+    if (localStorage["lmb-vizBar"]) {
+      vizBar = JSON.parse(localStorage["lmb-vizBar"]);
+    }
+    if (localStorage["lmb-styleControl"]) {
+      styleControl = JSON.parse(localStorage["lmb-styleControl"]);
+    }
+  }
+  $: if (browser) localStorage["lmb-vizBorder"] = JSON.stringify(vizBorder);
+  $: if (browser) localStorage["lmb-vizBar"] = JSON.stringify(vizBar);
+  $: if (browser) localStorage["lmb-styleControl"] = JSON.stringify(styleControl);
 </script>
 
-<!--
-coming soon:
-- view what each model's strengths are in a normalized view
-- maybe "what's the generally optimal model curve"
--->
 <div class="search">
   <select bind:value={category}>
     {#each Object.entries(categories[vision ? "vision" : "text"]) as [key, value]}
