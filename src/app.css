@@ -1,7 +1,4 @@
 @import url("m3-svelte/misc/styles.css");
-:root {
-  accent-color: rgb(var(--m3-scheme-primary));
-}
 @media (prefers-color-scheme: light) {
   :root {
     color-scheme: light;
