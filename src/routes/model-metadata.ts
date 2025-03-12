@@ -182,6 +182,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     organization: "Google Open",
   },
   "gemma-2-9b-it-simpo": { isOpen: true, organization: "Google Open" },
+  "gemma-3-27b-it": { isOpen: true, organization: "Google Open" },
   "gemma-2b-it": {
     deprecated: true,
     isOpen: true,
