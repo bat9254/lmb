@@ -417,12 +417,12 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   },
   "qwen2.5-plus-1127": { price: 2 * 3 + 9, organization: "Qwen" },
   "qwq-32b-preview": {
-    price: 2 * 0.12 + 0.18,
+    price: 2 * 0.12 + 0.18 * 4,
     isOpen: true,
     organization: "Qwen",
   },
   "qwq-32b": {
-    price: 2 * 0.12 + 0.18,
+    price: 2 * 0.12 + 0.18 * 8,
     isOpen: true,
     organization: "Qwen",
   },
