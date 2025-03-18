@@ -94,19 +94,24 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   "claude-instant-1": { organization: "Anthropic" },
   "codellama-34b-instruct": { isOpen: true },
   "codellama-70b-instruct": { isOpen: true },
-  "command-r": { price: 2 * 0.95 + 1.9, isOpen: true, organization: "Cohere" },
+  "command-r": { price: 2 * 0.5 + 1.5, isOpen: true, organization: "Cohere" },
   "command-r-08-2024": {
-    price: 2 * 0.1425 + 0.57,
+    price: 2 * 0.15 + 0.6,
     isOpen: true,
     organization: "Cohere",
   },
   "command-r-plus": {
-    price: 2 * 2.85 + 14.25,
+    price: 2 * 3 + 15,
     isOpen: true,
     organization: "Cohere",
   },
   "command-r-plus-08-2024": {
-    price: 2 * 2.375 + 9.5,
+    price: 2 * 2.5 + 10,
+    isOpen: true,
+    organization: "Cohere",
+  },
+  "command-a-03-2025": {
+    price: 2 * 2.5 + 10,
     isOpen: true,
     organization: "Cohere",
   },
