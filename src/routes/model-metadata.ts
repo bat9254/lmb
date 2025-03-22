@@ -85,6 +85,10 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     price: 2 * 3 + 15,
     organization: "Anthropic",
   },
+  "claude-3-7-sonnet-20250219-thinking-32k": {
+    price: 2 * 3 + 15 * 7.44,
+    organization: "Anthropic",
+  },
   "claude-3-haiku-20240307": {
     price: 2 * 0.25 + 1.25,
     organization: "Anthropic",
@@ -298,6 +302,10 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     isOpen: true,
     organization: "Meta",
   },
+  "llama-3.3-nemotron-49b-super-v1": {
+    isOpen: true,
+    organization: "NVIDIA",
+  },
   "llama2-70b-steerlm-chat": {
     deprecated: true,
     isOpen: true,
@@ -427,7 +435,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     organization: "Qwen",
   },
   "qwq-32b": {
-    price: 2 * 0.12 + 0.18 * 8,
+    price: 2 * 0.12 + 0.18 * 7.71,
     isOpen: true,
     organization: "Qwen",
   },
