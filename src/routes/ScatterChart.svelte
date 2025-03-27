@@ -23,7 +23,7 @@
     Tooltip,
   );
 
-  let { models }: { models: ModelData[] } = $props();
+  let { models, unit }: { models: ModelData[]; unit: string } = $props();
 
   let chart: Chart | undefined;
 
@@ -53,7 +53,7 @@
         const metadata = modelMetadata[model.name];
         const isOpen = metadata?.isOpen;
         return {
-          x: metadata?.price ? metadata.price / 3 : 0,
+          x: metadata?.price || 0,
           y: model.rating,
           label: model.name,
           backgroundColor: isOpen ? tertiaryPointColor : primaryPointColor,
@@ -87,7 +87,8 @@
             callbacks: {
               label: (context) => {
                 const point = dataPoints[context.dataIndex];
-                return `${point.label}: $${point.x.toFixed(2)}/1M tokens, Score: ${point.y.toFixed(1)}`;
+                const price = point.x < 0.01 ? point.x.toFixed(3) : point.x.toFixed(2);
+                return `${point.label}: $${price}/${unit}, Score: ${point.y.toFixed(1)}`;
               },
             },
           },
@@ -98,7 +99,7 @@
             position: "bottom",
             title: {
               display: true,
-              text: "$ per 1M tokens (mixed)",
+              text: `$ per ${unit}`,
               color: textColor,
             },
             ticks: {

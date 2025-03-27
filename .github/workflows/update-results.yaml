@@ -29,6 +29,9 @@ jobs:
       - name: Run conversion script
         run: python handling/convert_pickle.py
 
+      - name: Also update image models
+        run: python handling/convert_aa.py
+
       - name: Commit report
         run: |
           git config --global user.name 'GitHub Actions'

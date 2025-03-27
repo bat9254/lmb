@@ -5,15 +5,18 @@
   import {
     SegmentedButtonContainer,
     SegmentedButtonItem,
-    Menu,
-    MenuItem,
     Button,
     Icon,
     Dialog,
     Switch,
   } from "m3-svelte";
-  import { text as textBoard, vision as visionBoard } from "./assets/results.json";
+  import { text as textBoard } from "./assets/results.json";
+  import { vision as visionBoard } from "./assets/results.json";
+  import { default as imageArenaBoard } from "./assets/image_arena.json";
+  import { default as imageArtificialBoard } from "./assets/image_artificial.json";
+  import { default as imageFalBoard } from "./assets/image_fal.json";
   import ModelTable from "./ModelTable.svelte";
+  import SegmentedDropdown from "./SegmentedDropdown.svelte";
   import {
     type FilterStrategy,
     type PriceRange,
@@ -23,7 +26,7 @@
   import { browser } from "$app/environment";
 
   let category = "full",
-    vision = false,
+    paradigm = "text",
     styleControl = true;
   let searches: string[] = [];
   let settingsOpen = false;
@@ -57,35 +60,48 @@
       "Exclude refusal": "no_refusal",
     },
     vision: { Overall: "full", English: "english", Chinese: "chinese" },
-  };
+    image_arena: { Overall: "full" },
+    image_artificial: { Overall: "full" },
+    image_fal: { Overall: "full" },
+  } as Record<string, Record<string, string>>;
 
   const categoryName = (category: string, styleControl: boolean) =>
     `${category}${styleControl ? "_style_control" : ""}`;
 
   const normalizeStep = () => {
-    const currentBoard = vision ? visionBoard : textBoard;
-
-    if (!Object.values(categories[vision ? "vision" : "text"]).includes(category)) {
+    if (!Object.values(categories[paradigm]).includes(category)) {
       category = "full";
     }
 
     const targetCategory = categoryName(category, styleControl);
-    if (!(targetCategory in currentBoard)) {
+    if (!(targetCategory in getCurrentBoard())) {
       styleControl = false;
     }
   };
-  $: category, vision, styleControl, normalizeStep();
+  $: category, paradigm, styleControl, normalizeStep();
+
+  function getCurrentBoard() {
+    switch (paradigm) {
+      case "text":
+        return textBoard;
+      case "vision":
+        return visionBoard;
+      case "image_arena":
+        return imageArenaBoard;
+      case "image_artificial":
+        return imageArtificialBoard;
+      case "image_fal":
+        return imageFalBoard;
+      default:
+        return textBoard;
+    }
+  }
 
   $: if (browser) {
-    if (localStorage["lmb-vizBorder"]) {
-      vizBorder = JSON.parse(localStorage["lmb-vizBorder"]);
-    }
-    if (localStorage["lmb-vizBar"]) {
-      vizBar = JSON.parse(localStorage["lmb-vizBar"]);
-    }
-    if (localStorage["lmb-styleControl"]) {
+    if (localStorage["lmb-vizBorder"]) vizBorder = JSON.parse(localStorage["lmb-vizBorder"]);
+    if (localStorage["lmb-vizBar"]) vizBar = JSON.parse(localStorage["lmb-vizBar"]);
+    if (localStorage["lmb-styleControl"])
       styleControl = JSON.parse(localStorage["lmb-styleControl"]);
-    }
   }
   $: if (browser) localStorage["lmb-vizBorder"] = JSON.stringify(vizBorder);
   $: if (browser) localStorage["lmb-vizBar"] = JSON.stringify(vizBar);
@@ -94,17 +110,23 @@
 
 <div class="search">
   <select bind:value={category}>
-    {#each Object.entries(categories[vision ? "vision" : "text"]) as [key, value]}
+    {#each Object.entries(categories[paradigm]) as [key, value]}
       <option {value}>{key}</option>
     {/each}
   </select>
 
   <SegmentedButtonContainer>
-    {#if categoryName(category, styleControl) in visionBoard}
-      <input type="checkbox" bind:checked={vision} id="vision" />
-      <SegmentedButtonItem input="vision">Vision</SegmentedButtonItem>
-    {/if}
-    {#if categoryName(category, true) in (vision ? visionBoard : textBoard)}
+    <SegmentedDropdown
+      bind:value={paradigm}
+      options={{
+        Text: "text",
+        Vision: "vision",
+        "Image (LM Arena)": "image_arena",
+        "Image (Artificial Analysis)": "image_artificial",
+        "Image (Fal)": "image_fal",
+      }}
+    />
+    {#if categoryName(category, true) in getCurrentBoard()}
       <input type="checkbox" bind:checked={styleControl} id="styleControl" />
       <SegmentedButtonItem input="styleControl">Style control</SegmentedButtonItem>
     {/if}
@@ -125,8 +147,10 @@
     <Icon icon={iconSettings} />
   </Button>
 </div>
+
 <ModelTable
-  board={vision ? visionBoard : textBoard}
+  {paradigm}
+  board={getCurrentBoard()}
   {category}
   {styleControl}
   {searches}

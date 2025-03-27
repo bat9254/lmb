@@ -3,6 +3,7 @@
   import { filterModels } from "./model-filtering";
   import ScatterChart from "./ScatterChart.svelte";
 
+  export let paradigm: string;
   export let board: Record<string, Record<string, any>>;
   export let category: string;
   export let styleControl: boolean;
@@ -24,6 +25,7 @@
     filterStrategy,
     selectedPriceRanges,
   );
+  $: anyCi = models.some((m) => m.ciLow !== m.ciHigh);
   $: maxRating = Math.max(...models.map((m) => m.ciHigh));
 
   function formatCI(rating: number, low: number, high: number): string {
@@ -50,6 +52,9 @@
       Qwen: "https://huggingface.co/Qwen/",
       xAI: "https://x.ai/",
       "01": "https://www.01.ai/",
+      "Black Forest Labs": "https://blackforestlabs.ai/",
+      "Reka AI": "https://www.reka.ai/ourmodels",
+      Stability: "https://platform.stability.ai/",
     };
 
     if (metadata?.organization && metadata.organization in orgToUrl) {
@@ -66,7 +71,9 @@
       <th>Rank</th>
       <th>Model</th>
       <th>Rating</th>
-      <th>95% CI</th>
+      {#if anyCi}
+        <th>95% CI</th>
+      {/if}
     </tr>
   </thead>
   <tbody>
@@ -108,13 +115,15 @@
             {Math.round(rating)}
           {/if}
         </td>
-        <td>{formatCI(rating, ciLow, ciHigh)}</td>
+        {#if anyCi}
+          <td>{formatCI(rating, ciLow, ciHigh)}</td>
+        {/if}
       </tr>
     {/each}
   </tbody>
 </table>
 
-<ScatterChart {models} />
+<ScatterChart {models} unit={paradigm.startsWith("image") ? "generation" : "1M tokens (mixed)"} />
 
 <style>
   table {

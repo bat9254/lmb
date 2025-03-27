@@ -99,8 +99,11 @@ export function filterModels(
 
     const metadata = modelMetadata[model.name];
     const isFilteredOut =
-      filterStrategy != "showAll" &&
-      (!metadata || !shouldShowModel(model.name, metadata, filterStrategy, models));
+      filterStrategy == "showAll"
+        ? false
+        : filterStrategy == "hideDeprecated"
+          ? metadata && !shouldShowModel(model.name, metadata, filterStrategy, models)
+          : !metadata || !shouldShowModel(model.name, metadata, filterStrategy, models);
     if (!isFilteredOut) {
       if (!bar) {
         bar = thisBar;
@@ -133,7 +136,7 @@ export function filterModels(
     if (selectedPriceRanges.size == 0) return true;
     const metadata = modelMetadata[model.name];
     const avgPrice = metadata?.price;
-    const priceRange = avgPrice && getPriceRange(avgPrice / 3);
+    const priceRange = avgPrice && getPriceRange(avgPrice);
     if (!priceRange) return false;
     return selectedPriceRanges.has(priceRange);
   });
