@@ -493,7 +493,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   "stable-diffusion-3-large": { price: 0.065, organization: "Stability" },
   "stable-diffusion-3-large-turbo": { price: 0.04, organization: "Stability" },
   "stable-diffusion-3-medium": { price: 0.035, organization: "Stability" },
-  "flux-1-schnell": { price: 0.0005, organization: "Black Forest Labs" },
+  "flux-1-schnell": { isOpen: true, price: 0.0005, organization: "Black Forest Labs" },
   "playground-3": { organization: "Playground" },
   "ideogram-2a": { price: 0.04, organization: "Ideogram" },
   "ideogram-2a-turbo": { price: 0.025, organization: "Ideogram" },
