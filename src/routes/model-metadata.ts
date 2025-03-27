@@ -68,6 +68,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   "chatgpt-4o-latest-20240903": { deprecated: true, organization: "OpenAI" },
   "chatgpt-4o-latest-20241120": { price: mixPrice(2.5, 10), organization: "OpenAI" },
   "chatgpt-4o-latest-20250129": { price: mixPrice(5, 15), organization: "OpenAI" },
+  "chatgpt-4o-latest-20250326": { price: mixPrice(5, 15), organization: "OpenAI" },
   "claude-1": { organization: "Anthropic" },
   "claude-2.0": { price: mixPrice(8, 24), organization: "Anthropic" },
   "claude-2.1": { price: mixPrice(8, 24), organization: "Anthropic" },
