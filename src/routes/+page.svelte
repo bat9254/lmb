@@ -16,7 +16,7 @@
   import { default as imageArtificialBoard } from "./assets/image_artificial.json";
   import { default as imageFalBoard } from "./assets/image_fal.json";
   import ModelTable from "./ModelTable.svelte";
-  import SegmentedDropdown from "./SegmentedDropdown.svelte";
+  import Dropdown from "./Dropdown.svelte";
   import {
     type FilterStrategy,
     type PriceRange,
@@ -25,8 +25,8 @@
   } from "./model-metadata";
   import { browser } from "$app/environment";
 
-  let category = "full",
-    paradigm = "text",
+  let paradigm = "text",
+    category = "full",
     styleControl = true;
   let searches: string[] = [];
   let settingsOpen = false;
@@ -109,14 +109,8 @@
 </script>
 
 <div class="search">
-  <select bind:value={category}>
-    {#each Object.entries(categories[paradigm]) as [key, value]}
-      <option {value}>{key}</option>
-    {/each}
-  </select>
-
   <SegmentedButtonContainer>
-    <SegmentedDropdown
+    <Dropdown
       bind:value={paradigm}
       options={{
         Text: "text",
@@ -126,6 +120,9 @@
         "Image (Fal)": "image_fal",
       }}
     />
+    {#if Object.keys(categories[paradigm]).length > 1}
+      <Dropdown bind:value={category} options={categories[paradigm]} />
+    {/if}
     {#if categoryName(category, true) in getCurrentBoard()}
       <input type="checkbox" bind:checked={styleControl} id="styleControl" />
       <SegmentedButtonItem input="styleControl">Style control</SegmentedButtonItem>

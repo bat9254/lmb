@@ -10,7 +10,7 @@
 </select>
 
 <style>
-  select ~ :global(label) {
+  select ~ :global(*) {
     border-left: 0.0625rem solid rgb(var(--m3-scheme-outline));
   }
 
