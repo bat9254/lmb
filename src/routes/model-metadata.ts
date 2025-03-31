@@ -481,6 +481,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   "zephyr-7b-beta": { isOpen: true },
   "zephyr-orpo-141b-A35b-v0.1": { isOpen: true },
   reve: { organization: "Reve" },
+  "gpt-4o": { organization: "OpenAI" },
   "recraft-3": { price: 0.04, organization: "Recraft" },
   "imagen-3-generate-002": { organization: "Google" },
   "flux-1.1-pro": { price: 0.04, organization: "Black Forest Labs" },
