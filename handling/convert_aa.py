@@ -46,7 +46,7 @@ def transform_model_name(name):
     return name
 
 # Fetch and transform the data
-url = "https://artificialanalysis.ai/api/text-to-image/arena/preferences/retrieve?user_key=total"
+url = "https://artificialanalysis.ai/api/text-to-image/arena/preferences/total"
 response = requests.get(url)
 data = response.json()
 
@@ -59,11 +59,11 @@ output = {
 }
 
 # Extract and transform the data
-for result in data.get("results", []):
+for result in data:
     model_name = result.get("name", "")
-    elo_rating = result.get("quality_elo", 0)
 
     if model_name:
+        elo_rating = result["arena"]["total"]["total"]["elo"]
         transformed_name = transform_model_name(model_name)
         output["full"]["elo_rating_final"][transformed_name] = elo_rating
 

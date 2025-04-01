@@ -104,4 +104,4 @@ for category_type, categories in data.items():
                     }
 
 with open('src/routes/assets/results.json', 'w') as f:
-    json.dump(processed_data, f)
+    json.dump(processed_data, f, indent=2)
