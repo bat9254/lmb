@@ -7,6 +7,7 @@
       "stable-diffusion-3.5-large": 1026.56,
       "stable-diffusion-2.1": 712.03,
       "midjourney-6.1": 1044.86,
+      "lumina-image-2": 952.74,
       "recraft-3": 1105.64,
       "midjourney-6": 1038.55,
       "imagen-3-generate-002": 1081.69,
@@ -31,7 +32,6 @@
       "stable-diffusion-3-large": 1013.79,
       "playground-2.5": 954.42,
       "flux-1.1-pro": 1078.51,
-      "lumina-image-2": 952.74,
       "ideogram-2a-turbo": 986.28,
       "infinity-8b": 1020.1,
       "luma-photon-flash": 963.69,
@@ -47,6 +47,187 @@
       "stable-diffusion-3.5-large-turbo": 1030.15,
       "recraft-20b": 976.57
     },
-    "confidence_intervals": {}
+    "confidence_intervals": {
+      "amazon-titan-g1-2": {
+        "low": 895.98,
+        "high": 901.98
+      },
+      "gemini-2-flash-experimental": {
+        "low": 957.79,
+        "high": 969.79
+      },
+      "stable-diffusion-xl-1": {
+        "low": 846.53,
+        "high": 851.53
+      },
+      "stable-diffusion-3.5-large": {
+        "low": 1023.56,
+        "high": 1029.56
+      },
+      "stable-diffusion-2.1": {
+        "low": 709.03,
+        "high": 715.03
+      },
+      "midjourney-6.1": {
+        "low": 1041.86,
+        "high": 1047.86
+      },
+      "lumina-image-2": {
+        "low": 946.74,
+        "high": 958.74
+      },
+      "recraft-3": {
+        "low": 1102.64,
+        "high": 1108.64
+      },
+      "midjourney-6": {
+        "low": 1036.55,
+        "high": 1040.55
+      },
+      "imagen-3-generate-002": {
+        "low": 1076.69,
+        "high": 1086.69
+      },
+      "adobe-firefly-3": {
+        "low": 938.78,
+        "high": 944.78
+      },
+      "stable-diffusion-3.5-medium": {
+        "low": 930.02,
+        "high": 942.02
+      },
+      "gpt-4o": {
+        "low": 1100.73,
+        "high": 1116.73
+      },
+      "reve": {
+        "low": 1102.14,
+        "high": 1116.14
+      },
+      "amazon-titan-g1": {
+        "low": 877.98,
+        "high": 883.98
+      },
+      "flux-1-dev": {
+        "low": 1038.86,
+        "high": 1044.86
+      },
+      "phoenix-1-ultra": {
+        "low": 1010.67,
+        "high": 1023.67
+      },
+      "ideogram-2a": {
+        "low": 989.29,
+        "high": 1002.29
+      },
+      "ideogram-2": {
+        "low": 1037.72,
+        "high": 1043.72
+      },
+      "dalle-2": {
+        "low": 711.38,
+        "high": 717.38
+      },
+      "image-01": {
+        "low": 1036.57,
+        "high": 1050.57
+      },
+      "ideogram-2-turbo": {
+        "low": 1029.92,
+        "high": 1035.92
+      },
+      "playground-3": {
+        "low": 994.37,
+        "high": 1000.37
+      },
+      "flux-1-pro": {
+        "low": 1060.97,
+        "high": 1066.97
+      },
+      "stable-diffusion-3-medium": {
+        "low": 899.71,
+        "high": 905.71
+      },
+      "flux-1-schnell": {
+        "low": 1000.0,
+        "high": 1000.0
+      },
+      "stable-diffusion-3-large-turbo": {
+        "low": 893.61,
+        "high": 898.61
+      },
+      "stable-diffusion-1.5": {
+        "low": 622.03,
+        "high": 628.03
+      },
+      "stable-diffusion-3-large": {
+        "low": 1010.79,
+        "high": 1015.79
+      },
+      "playground-2.5": {
+        "low": 951.42,
+        "high": 957.42
+      },
+      "flux-1.1-pro": {
+        "low": 1075.51,
+        "high": 1081.51
+      },
+      "ideogram-2a-turbo": {
+        "low": 980.28,
+        "high": 993.28
+      },
+      "infinity-8b": {
+        "low": 1014.1,
+        "high": 1026.1
+      },
+      "luma-photon-flash": {
+        "low": 959.69,
+        "high": 967.69
+      },
+      "janus-pro": {
+        "low": 694.37,
+        "high": 704.37
+      },
+      "stable-diffusion-1.6": {
+        "low": 883.28,
+        "high": 888.28
+      },
+      "dalle-3-hd": {
+        "low": 937.61,
+        "high": 943.61
+      },
+      "ideogram-1": {
+        "low": 1017.56,
+        "high": 1023.56
+      },
+      "phoenix-1-fast": {
+        "low": 974.69,
+        "high": 987.69
+      },
+      "sdxl-lightning": {
+        "low": 871.5,
+        "high": 875.5
+      },
+      "dalle-3": {
+        "low": 924.41,
+        "high": 929.41
+      },
+      "luma-photon": {
+        "low": 1023.62,
+        "high": 1034.62
+      },
+      "phoenix-0.9-ultra": {
+        "low": 988.08,
+        "high": 994.08
+      },
+      "stable-diffusion-3.5-large-turbo": {
+        "low": 1027.15,
+        "high": 1033.15
+      },
+      "recraft-20b": {
+        "low": 973.57,
+        "high": 979.57
+      }
+    }
   }
 }

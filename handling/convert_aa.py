@@ -45,6 +45,18 @@ def transform_model_name(name):
 
     return name
 
+def parse_ci95(ci95_str):
+    """Parse CI95 string in format '-X/+Y' and return (low, high) offsets"""
+    if not ci95_str:
+        return None, None
+    try:
+        minus, plus = ci95_str.split('/')
+        minus_val = float(minus.strip('-'))
+        plus_val = float(plus.strip('+'))
+        return minus_val, plus_val
+    except:
+        return None, None
+
 # Fetch and transform the data
 url = "https://artificialanalysis.ai/api/text-to-image/arena/preferences/total"
 response = requests.get(url)
@@ -61,11 +73,20 @@ output = {
 # Extract and transform the data
 for result in data:
     model_name = result.get("name", "")
-
     if model_name:
-        elo_rating = result["arena"]["total"]["total"]["elo"]
         transformed_name = transform_model_name(model_name)
-        output["full"]["elo_rating_final"][transformed_name] = elo_rating
+        total_stats = result["arena"]["total"]["total"]
+        elo_rating = total_stats["elo"]
+        
+        output["full"]["elo_rating_final"][transformed_name] = round(elo_rating, 2)
+        
+        # Parse and add confidence intervals
+        minus_ci, plus_ci = parse_ci95(total_stats.get("ci95"))
+        if minus_ci is not None and plus_ci is not None:
+            output["full"]["confidence_intervals"][transformed_name] = {
+                "low": round(elo_rating - minus_ci, 2),
+                "high": round(elo_rating + plus_ci, 2)
+            }
 
 # Ensure directory exists
 os.makedirs("src/routes/assets", exist_ok=True)
