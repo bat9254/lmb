@@ -145,6 +145,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   },
   "deepseek-r1": { price: mixPrice(0.55, 2.19 * 5.7), isOpen: true, organization: "DeepSeek" },
   "deepseek-v3": { price: mixPrice(0.27, 1.1), isOpen: true, organization: "DeepSeek" },
+  "deepseek-v3-0324": { price: mixPrice(0.27, 1.1), isOpen: true, organization: "DeepSeek" },
   "dolly-v2-12b": { isOpen: true },
   "falcon-180b-chat": { isOpen: true },
   "fastchat-t5-3b": { isOpen: true },
