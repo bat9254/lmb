@@ -14,12 +14,10 @@
     "lint": "prettier --check ."
   },
   "devDependencies": {
-    "@ktibow/iconset-material-symbols": "^0.0.1738223466",
     "@sveltejs/adapter-static": "^3.0.8",
     "@sveltejs/kit": "^2.16.0",
     "@sveltejs/vite-plugin-svelte": "^5.0.0",
     "chart.js": "^4.4.8",
-    "m3-svelte": "^3.4.8",
     "prettier": "^3.4.2",
     "prettier-plugin-svelte": "^3.3.3",
     "svelte": "^5.0.0",
