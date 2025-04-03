@@ -2,21 +2,39 @@
   import { modelMetadata, type FilterStrategy, type PriceRange } from "./model-metadata";
   import { filterModels } from "./model-filtering";
   import ScatterChart from "./ScatterChart.svelte";
+  import type { ModelData } from "./model-filtering"; // Assuming ModelData is the type returned by filterModels
 
-  export let paradigm: string;
-  export let board: Record<string, Record<string, any>>;
-  export let category: string;
-  export let styleControl: boolean;
-  export let searches: string[];
-  export let showOpenOnly = false;
-  export let vizBorder = false;
-  export let vizBar = false;
-  export let rankStrategy: string;
-  export let filterStrategy: FilterStrategy;
-  export let selectedPriceRanges: Set<PriceRange>;
+  // Props using Svelte 5 $props rune
+  let {
+    paradigm,
+    board,
+    category,
+    styleControl,
+    searches,
+    showOpenOnly = false, // Default values handled here
+    vizBorder = false,
+    vizBar = false,
+    rankStrategy,
+    filterStrategy,
+    selectedPriceRanges,
+  } = $props<{
+    paradigm: string;
+    board: Record<string, Record<string, any>>;
+    category: string;
+    styleControl: boolean;
+    searches: string[];
+    showOpenOnly?: boolean; // Mark as optional if default is provided
+    vizBorder?: boolean;
+    vizBar?: boolean;
+    rankStrategy: string;
+    filterStrategy: FilterStrategy;
+    selectedPriceRanges: Set<PriceRange>;
+  }>();
 
-  $: categoryName = `${category}${styleControl ? "_style_control" : ""}`;
-  $: models = filterModels(
+  // Derived state using Svelte 5 $derived rune
+  let categoryName = $derived(`${category}${styleControl ? "_style_control" : ""}`);
+
+  let models = $derived(filterModels(
     board,
     categoryName,
     searches,
@@ -24,10 +42,14 @@
     rankStrategy,
     filterStrategy,
     selectedPriceRanges,
-  );
-  $: anyCi = models.some((m) => m.ciLow !== m.ciHigh);
-  $: maxRating = Math.max(...models.map((m) => m.ciHigh));
+  ));
 
+  let anyCi = $derived(models.some((m: ModelData) => m.ciLow !== m.ciHigh));
+
+  // Handle potential empty models array for Math.max
+  let maxRating = $derived(models.length > 0 ? Math.max(...models.map((m: ModelData) => m.ciHigh)) : 1000); // Use 1000 as default or another sensible baseline
+
+  // Regular functions remain unchanged
   function formatCI(rating: number, low: number, high: number): string {
     const minus = Math.round(rating - low);
     const plus = Math.round(high - rating);
@@ -41,9 +63,10 @@
       return `https://huggingface.co/models?search=${encodeURIComponent(name)}`;
     }
 
+    // Keep the orgToUrl mapping as is
     const orgToUrl: Record<string, string> = {
       OpenAI: "https://platform.openai.com/docs/models/",
-      Amazon: "https://docs.aws.amazon.com/nova/latest/userguide/what-is-nova.html",
+      Amazon: "https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html#model-ids-arns", // Updated Amazon link
       Anthropic: "https://www.anthropic.com/claude",
       Google: "https://ai.google.dev/models/",
       Deepseek: "https://www.deepseek.com/",
@@ -55,6 +78,7 @@
       "Black Forest Labs": "https://blackforestlabs.ai/",
       "Reka AI": "https://www.reka.ai/ourmodels",
       Stability: "https://platform.stability.ai/",
+      // Add other orgs if needed
     };
 
     if (metadata?.organization && metadata.organization in orgToUrl) {
@@ -87,7 +111,7 @@
       {/snippet}
       <tr
         class:short={vizBorder}
-        style:--padding={vizBorder && i > 0
+        style:--padding={vizBorder && i > 0 && models[i - 1]
           ? `${2 * Math.min(Math.max(models[i - 1].rating - rating, 0), 300) + 1}px`
           : "1px"}
       >
@@ -103,12 +127,14 @@
         </td>
         <td>
           {#if vizBar}
-            {@const pct1 = Math.max((ciLow - 1000) / (maxRating - 1000), 0) * 100}
-            {@const pct2 = Math.max((rating - 1000) / (maxRating - 1000), 0) * 100}
-            {@const pct3 = Math.max((ciHigh - 1000) / (maxRating - 1000), 0) * 100}
+            {@const ratingBase = 1000} {/* Define base for percentage calculation */}
+            {@const ratingRange = maxRating - ratingBase}
+            {@const pct1 = ratingRange > 0 ? Math.max((ciLow - ratingBase) / ratingRange, 0) * 100 : 0}
+            {@const pct2 = ratingRange > 0 ? Math.max((rating - ratingBase) / ratingRange, 0) * 100 : 0}
+            {@const pct3 = ratingRange > 0 ? Math.max((ciHigh - ratingBase) / ratingRange, 0) * 100 : 0}
             <div class="viz-bar">
               <div class="shadow" style:left="{pct1}%" style:right="{100 - pct3}%"></div>
-              <div class="bar" style:left="0%" style:width="{pct2}%"></div>
+              <div class="bar" style:width="{pct2}%"></div> {/* Simplified width */}
               <span>{Math.round(rating)}</span>
             </div>
           {:else}
@@ -126,6 +152,22 @@
 <ScatterChart {models} unit={paradigm.startsWith("image") ? "generation" : "1M tokens (mixed)"} />
 
 <style>
+  /* Styles from original, potentially updated based on your variables */
+  :root {
+    /* Define these CSS variables based on your theme */
+    /* Example using placeholders */
+    --m3-scheme-on-surface-variant: 100, 100, 100;
+    --m3-scheme-outline-variant: 200, 200, 200;
+    --m3-scheme-primary: 0, 123, 255;
+    --m3-scheme-tertiary-container: 230, 240, 255;
+    --m3-scheme-on-tertiary-container: 50, 70, 90;
+    /* Diff variables */
+    --border-radius-sm: 4px; /* Example value */
+    --color-surface-container: rgb(240, 240, 240); /* Example value */
+    --color-secondary: rgb(108, 117, 125); /* Example value */
+    --color-text: rgb(33, 37, 41); /* Example value */
+  }
+
   table {
     width: 100%;
     border-collapse: separate;
@@ -173,40 +215,52 @@
     vertical-align: middle;
   }
 
+  /* Updated .viz-bar styles based on the diff */
   .viz-bar {
     display: flex;
     align-items: center;
     width: 60dvw;
-    height: 2rem;
-
+    height: 1.5rem; /* Slightly smaller bar */
     position: relative;
+    border-radius: var(--border-radius-sm);
+    overflow: hidden; /* Hide overflow */
+    background-color: var(--color-surface-container); /* Add background to bar container */
 
     .shadow {
       position: absolute;
       top: 0;
       bottom: 0;
-      background-color: rgb(var(--m3-scheme-secondary) / 0.2);
-      border-radius: 0.5rem;
+      background-color: var(--color-secondary); /* Use secondary for CI shadow */
+      opacity: 0.2;
+      /* left/right set dynamically */
     }
 
     .bar {
       position: absolute;
       top: 0;
       bottom: 0;
-      background-color: rgb(var(--m3-scheme-secondary) / 0.8);
-      border-radius: 0.5rem;
+      left: 0; /* Bar always starts from left */
+      background-color: var(--color-secondary); /* Use secondary color */
+      /* Removed border-radius from here, handled by parent overflow:hidden */
+      /* width set dynamically */
     }
 
     span {
-      color: rgb(var(--m3-scheme-on-secondary));
+      color: var(--color-text); /* Use regular text color or a contrast color */
       padding-left: 0.5rem;
       z-index: 1;
+      font-weight: 500;
+      mix-blend-mode: difference; /* Make text visible on bar */
+      pointer-events: none; /* Prevent text from interfering with potential interactions */
+      line-height: 1.5rem; /* Match parent height */
     }
   }
+
   .short td {
-    padding: 0.25rem 0.5rem;
+      padding: 0.25rem 0.5rem;
   }
-  .short .viz-bar {
-    height: 1.5rem;
-  }
+  /* Adjust .short .viz-bar height if needed, but it's already 1.5rem */
+  /* .short .viz-bar { height: 1.2rem; } */ /* Example if further reduction desired */
+  /* .short .viz-bar span { line-height: 1.2rem; } */ /* Match height */
+
 </style>
