@@ -127,7 +127,8 @@
         </td>
         <td>
           {#if vizBar}
-            {@const ratingBase = 1000} {/* Define base for percentage calculation */}
+            {@const ratingBase = 1000}
+            {/* Define base for percentage calculation */} {/* <-- FIX: Moved comment to this line */}
             {@const ratingRange = maxRating - ratingBase}
             {@const pct1 = ratingRange > 0 ? Math.max((ciLow - ratingBase) / ratingRange, 0) * 100 : 0}
             {@const pct2 = ratingRange > 0 ? Math.max((rating - ratingBase) / ratingRange, 0) * 100 : 0}
