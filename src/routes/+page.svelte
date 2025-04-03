@@ -238,7 +238,17 @@
 />
 
 <!-- Standard HTML Dialog -->
-<dialog bind:this={dialogRef} class="settings-dialog" on:close={() => (settingsOpen = false)} />
+<dialog
+  bind:this={dialogRef}
+  class="settings-dialog"
+  on:close={() => (settingsOpen = false)}
+>
+  <form method="dialog">
+    <div class="settings-content">
+      <!-- Your dialog content here -->
+    </div>
+  </form>
+</dialog>
 
   <form method="dialog"> <!-- Allows closing via buttons inside -->
     <div class="settings-content">
