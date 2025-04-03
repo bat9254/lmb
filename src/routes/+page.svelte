@@ -1,13 +1,11 @@
 <script lang="ts">
-  // Removed icon imports and m3-svelte imports
-
   import { text as textBoard } from "./assets/results.json";
   import { vision as visionBoard } from "./assets/results.json";
   import { default as imageArenaBoard } from "./assets/image_arena.json";
   import { default as imageArtificialBoard } from "./assets/image_artificial.json";
   import { default as imageFalBoard } from "./assets/image_fal.json";
   import ModelTable from "./ModelTable.svelte";
-  import Dropdown from "./Dropdown.svelte"; // Assuming Dropdown is a custom component not from m3-svelte
+  import Dropdown from "./Dropdown.svelte";
   import {
     type FilterStrategy,
     type PriceRange,
@@ -21,12 +19,13 @@
     styleControl = true;
   let searches: string[] = [];
   let settingsOpen = false;
-  let showOpenOnly = false; // Renamed from openModelsOnly for clarity
+  let showOpenOnly = false;
   let vizBorder = false;
   let vizBar = false;
   let rankStrategy = "comparable";
   let filterStrategy: FilterStrategy = "hideDeprecated";
   let selectedPriceRanges = new Set<PriceRange>();
+  let dialogRef;
 
   const categories = {
     text: {
@@ -57,7 +56,7 @@
   } as Record<string, Record<string, string>>;
 
   const categoryName = (category: string, styleControl: boolean) =>
-    `${category}${styleControl ? "_style_control" : ""}`;
+    ```${category}${styleControl ? "_style_control" : ""}```;
 
   const normalizeStep = () => {
     if (!Object.values(categories[paradigm]).includes(category)) {
@@ -90,31 +89,29 @@
 
   // Persist settings to localStorage
   $: if (browser) {
-    try { // Use try/catch for potential JSON parsing errors or storage issues
-        const storedVizBorder = localStorage.getItem("lmb-vizBorder");
-        if (storedVizBorder) vizBorder = JSON.parse(storedVizBorder);
+    try {
+      const storedVizBorder = localStorage.getItem("lmb-vizBorder");
+      if (storedVizBorder) vizBorder = JSON.parse(storedVizBorder);
 
-        const storedVizBar = localStorage.getItem("lmb-vizBar");
-        if (storedVizBar) vizBar = JSON.parse(storedVizBar);
+      const storedVizBar = localStorage.getItem("lmb-vizBar");
+      if (storedVizBar) vizBar = JSON.parse(storedVizBar);
 
-        const storedStyleControl = localStorage.getItem("lmb-styleControl");
-        if (storedStyleControl) styleControl = JSON.parse(storedStyleControl);
+      const storedStyleControl = localStorage.getItem("lmb-styleControl");
+      if (storedStyleControl) styleControl = JSON.parse(storedStyleControl);
 
-        // Add persistence for other settings if needed
-        const storedShowOpen = localStorage.getItem("lmb-showOpenOnly");
-        if (storedShowOpen) showOpenOnly = JSON.parse(storedShowOpen);
+      const storedShowOpen = localStorage.getItem("lmb-showOpenOnly");
+      if (storedShowOpen) showOpenOnly = JSON.parse(storedShowOpen);
 
-        const storedRank = localStorage.getItem("lmb-rankStrategy");
-        if (storedRank) rankStrategy = storedRank;
+      const storedRank = localStorage.getItem("lmb-rankStrategy");
+      if (storedRank) rankStrategy = storedRank;
 
-        const storedFilter = localStorage.getItem("lmb-filterStrategy");
-        if (storedFilter) filterStrategy = storedFilter as FilterStrategy;
+      const storedFilter = localStorage.getItem("lmb-filterStrategy");
+      if (storedFilter) filterStrategy = storedFilter as FilterStrategy;
 
-        const storedPriceRanges = localStorage.getItem("lmb-selectedPriceRanges");
-        if (storedPriceRanges) selectedPriceRanges = new Set(JSON.parse(storedPriceRanges));
-
+      const storedPriceRanges = localStorage.getItem("lmb-selectedPriceRanges");
+      if (storedPriceRanges) selectedPriceRanges = new Set(JSON.parse(storedPriceRanges));
     } catch (e) {
-        console.error("Error reading settings from localStorage:", e);
+      console.error("Error reading settings from localStorage:", e);
     }
   }
 
@@ -126,9 +123,8 @@
   $: if (browser) localStorage.setItem("lmb-rankStrategy", rankStrategy);
   $: if (browser) localStorage.setItem("lmb-filterStrategy", filterStrategy);
   $: if (browser) localStorage.setItem("lmb-selectedPriceRanges", JSON.stringify(Array.from(selectedPriceRanges)));
-  let dialogRef;
-  let settingsOpen = false;
 
+  // Dialog control
   $: {
     if (settingsOpen && dialogRef && !dialogRef.open) {
       dialogRef.showModal();
@@ -137,6 +133,7 @@
     }
   }
 </script>
+
 
 <!-- Use CSS Variables for theming (define these in a global stylesheet or :root) -->
 <svelte:head>
