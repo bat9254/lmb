@@ -126,7 +126,16 @@
   $: if (browser) localStorage.setItem("lmb-rankStrategy", rankStrategy);
   $: if (browser) localStorage.setItem("lmb-filterStrategy", filterStrategy);
   $: if (browser) localStorage.setItem("lmb-selectedPriceRanges", JSON.stringify(Array.from(selectedPriceRanges)));
+  let dialogRef;
+  let settingsOpen = false;
 
+  $: {
+    if (settingsOpen && dialogRef && !dialogRef.open) {
+      dialogRef.showModal();
+    } else if (!settingsOpen && dialogRef?.open) {
+      dialogRef.close();
+    }
+  }
 </script>
 
 <!-- Use CSS Variables for theming (define these in a global stylesheet or :root) -->
@@ -231,20 +240,6 @@
 <!-- Standard HTML Dialog -->
 <dialog bind:this={dialogRef} class="settings-dialog" on:close={() => (settingsOpen = false)} />
 
-<script>
-  let dialogRef;
-  let settingsOpen = false;
-
-  $: {
-    if (settingsOpen && dialogRef && !dialogRef.open) {
-      dialogRef.showModal();
-    } else if (!settingsOpen && dialogRef?.open) {
-      dialogRef.close();
-    }
-  }
-</script>
-
-
   <form method="dialog"> <!-- Allows closing via buttons inside -->
     <div class="settings-content">
       <h2>Settings</h2>
@@ -256,7 +251,6 @@
              <label for="showOpenOnlySwitch" class="switch-track"></label>
         </div>
       </label>
-
       <div class="filter-section-inline">
         <span>Visualize scores</span>
         <div class="button-group">
