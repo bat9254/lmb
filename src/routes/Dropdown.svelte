@@ -10,10 +10,6 @@
 </select>
 
 <style>
-  select ~ :global(*) {
-    border-left: 0.0625rem solid rgb(var(--m3-scheme-outline));
-  }
-
   select {
     height: 100%;
     padding-left: 1rem;
