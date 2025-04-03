@@ -229,7 +229,22 @@
 />
 
 <!-- Standard HTML Dialog -->
-<dialog bind:open={settingsOpen} on:close={() => (settingsOpen = false)} class="settings-dialog">
+<dialog bind:this={dialogRef} class="settings-dialog" on:close={() => (settingsOpen = false)} />
+
+<script>
+  let dialogRef;
+  let settingsOpen = false;
+
+  $: {
+    if (settingsOpen && dialogRef && !dialogRef.open) {
+      dialogRef.showModal();
+    } else if (!settingsOpen && dialogRef?.open) {
+      dialogRef.close();
+    }
+  }
+</script>
+
+
   <form method="dialog"> <!-- Allows closing via buttons inside -->
     <div class="settings-content">
       <h2>Settings</h2>
