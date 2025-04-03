@@ -37,16 +37,24 @@
 
     // Helper to get RGB values from CSS variable
     function getRGBValues(cssVar: string): string {
-      const root = document.documentElement;
-      const style = getComputedStyle(root);
-      return style.getPropertyValue(cssVar).trim();
+      const style = getComputedStyle(document.documentElement);
+      const colorValue = style.getPropertyValue(cssVar).trim();
+      // Assuming colors are defined like #RRGGBB or rgb(r, g, b) - adapt if needed
+      // This is a simplified parser, might need adjustments for hsl etc.
+      if (colorValue.startsWith('rgb')) return colorValue.slice(4, -1);
+      if (colorValue.startsWith('#')) { // Basic hex to rgb
+          const bigint = parseInt(colorValue.slice(1), 16);
+          return `${(bigint >> 16) & 255}, ${(bigint >> 8) & 255}, ${bigint & 255}`;
+      }
+      // Fallback or more parsing needed if using other formats like HSL
+      return '0, 0, 0'; // Default fallback
     }
 
-    const textColor = `rgb(${getRGBValues("--m3-scheme-on-surface")})`;
-    const primaryPointColor = `rgb(${getRGBValues("--m3-scheme-primary-container")})`;
-    const primaryBorderColor = `rgb(${getRGBValues("--m3-scheme-on-primary-container")})`;
-    const tertiaryPointColor = `rgb(${getRGBValues("--m3-scheme-tertiary-container")})`;
-    const tertiaryBorderColor = `rgb(${getRGBValues("--m3-scheme-on-tertiary-container")})`;
+    const textColor = `rgb(${getRGBValues("--color-text")})`;
+    const defaultPointColor = `rgb(${getRGBValues("--color-primary")})`; // Use primary color
+    const defaultBorderColor = `rgb(${getRGBValues("--color-outline")})`;
+    const openPointColor = `rgb(${getRGBValues("--color-tertiary")})`; // Use tertiary for open
+    const openBorderColor = `rgb(${getRGBValues("--color-outline-variant")})`;
 
     const dataPoints = models
       .map((model) => {
@@ -56,8 +64,8 @@
           x: metadata?.price || 0,
           y: model.rating,
           label: model.name,
-          backgroundColor: isOpen ? tertiaryPointColor : primaryPointColor,
-          borderColor: isOpen ? tertiaryBorderColor : primaryBorderColor,
+          backgroundColor: isOpen ? openPointColor : defaultPointColor,
+          borderColor: isOpen ? openBorderColor : defaultBorderColor,
         };
       })
       .filter((point) => point.x > 0);
@@ -106,13 +114,13 @@
               color: textColor,
             },
             grid: {
-              color: `rgb(var(--m3-scheme-on-surface-variant))`,
+              color: `rgb(${getRGBValues("--color-outline-variant")})`, // Use new variable
             },
           },
           y: {
             type: "linear",
             title: {
-              display: true,
+              display: true, // Keep axis labels
               text: "Arena Score",
               color: textColor,
             },
@@ -120,7 +128,7 @@
               color: textColor,
             },
             grid: {
-              color: `rgb(var(--m3-scheme-on-surface-variant))`,
+              color: `rgb(${getRGBValues("--color-outline-variant")})`, // Use new variable
             },
           },
         },
@@ -154,13 +162,13 @@
     height: 400px;
     margin-top: 2rem;
     padding: 1rem;
-    background-color: rgb(var(--m3-scheme-surface-container));
-    border-radius: var(--m3-util-rounding-medium);
-    box-shadow: var(--m3-util-elevation-1);
+    background-color: var(--color-surface-container);
+    border-radius: var(--border-radius-lg); /* Use new variable */
+    box-shadow: var(--shadow-sm); /* Use new variable */
   }
   :global(.chartjs-tooltip) {
-    background: rgb(var(--m3-scheme-surface-container-highest)) !important;
-    color: rgb(var(--m3-scheme-on-surface)) !important;
-    border: 1px solid rgb(var(--m3-scheme-outline)) !important;
+    background: var(--color-surface) !important; /* Use new variable */
+    color: var(--color-text) !important; /* Use new variable */
+    border: 1px solid var(--color-outline) !important;
   }
 </style>
