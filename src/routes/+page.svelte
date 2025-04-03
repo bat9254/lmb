@@ -1,11 +1,13 @@
 <script lang="ts">
+  // Removed icon imports and m3-svelte imports
+
   import { text as textBoard } from "./assets/results.json";
   import { vision as visionBoard } from "./assets/results.json";
   import { default as imageArenaBoard } from "./assets/image_arena.json";
   import { default as imageArtificialBoard } from "./assets/image_artificial.json";
   import { default as imageFalBoard } from "./assets/image_fal.json";
   import ModelTable from "./ModelTable.svelte";
-  import Dropdown from "./Dropdown.svelte";
+  import Dropdown from "./Dropdown.svelte"; // Assuming Dropdown is a custom component not from m3-svelte
   import {
     type FilterStrategy,
     type PriceRange,
@@ -18,14 +20,14 @@
     category = "full",
     styleControl = true;
   let searches: string[] = [];
-  let settingsOpen = false;
-  let showOpenOnly = false;
+  let settingsOpen = false; // State to control dialog visibility
+  let showOpenOnly = false; // Renamed from openModelsOnly for clarity
   let vizBorder = false;
   let vizBar = false;
   let rankStrategy = "comparable";
   let filterStrategy: FilterStrategy = "hideDeprecated";
   let selectedPriceRanges = new Set<PriceRange>();
-  let dialogRef;
+  let dialogRef: HTMLDialogElement; // Reference to the dialog element
 
   const categories = {
     text: {
@@ -56,7 +58,7 @@
   } as Record<string, Record<string, string>>;
 
   const categoryName = (category: string, styleControl: boolean) =>
-    ```${category}${styleControl ? "_style_control" : ""}```;
+    `${category}${styleControl ? "_style_control" : ""}`;
 
   const normalizeStep = () => {
     if (!Object.values(categories[paradigm]).includes(category)) {
@@ -89,29 +91,30 @@
 
   // Persist settings to localStorage
   $: if (browser) {
-    try {
-      const storedVizBorder = localStorage.getItem("lmb-vizBorder");
-      if (storedVizBorder) vizBorder = JSON.parse(storedVizBorder);
+    try { // Use try/catch for potential JSON parsing errors or storage issues
+        const storedVizBorder = localStorage.getItem("lmb-vizBorder");
+        if (storedVizBorder) vizBorder = JSON.parse(storedVizBorder);
 
-      const storedVizBar = localStorage.getItem("lmb-vizBar");
-      if (storedVizBar) vizBar = JSON.parse(storedVizBar);
+        const storedVizBar = localStorage.getItem("lmb-vizBar");
+        if (storedVizBar) vizBar = JSON.parse(storedVizBar);
 
-      const storedStyleControl = localStorage.getItem("lmb-styleControl");
-      if (storedStyleControl) styleControl = JSON.parse(storedStyleControl);
+        const storedStyleControl = localStorage.getItem("lmb-styleControl");
+        if (storedStyleControl) styleControl = JSON.parse(storedStyleControl);
 
-      const storedShowOpen = localStorage.getItem("lmb-showOpenOnly");
-      if (storedShowOpen) showOpenOnly = JSON.parse(storedShowOpen);
+        const storedShowOpen = localStorage.getItem("lmb-showOpenOnly");
+        if (storedShowOpen) showOpenOnly = JSON.parse(storedShowOpen);
 
-      const storedRank = localStorage.getItem("lmb-rankStrategy");
-      if (storedRank) rankStrategy = storedRank;
+        const storedRank = localStorage.getItem("lmb-rankStrategy");
+        if (storedRank) rankStrategy = storedRank;
 
-      const storedFilter = localStorage.getItem("lmb-filterStrategy");
-      if (storedFilter) filterStrategy = storedFilter as FilterStrategy;
+        const storedFilter = localStorage.getItem("lmb-filterStrategy");
+        if (storedFilter) filterStrategy = storedFilter as FilterStrategy;
 
-      const storedPriceRanges = localStorage.getItem("lmb-selectedPriceRanges");
-      if (storedPriceRanges) selectedPriceRanges = new Set(JSON.parse(storedPriceRanges));
+        const storedPriceRanges = localStorage.getItem("lmb-selectedPriceRanges");
+        if (storedPriceRanges) selectedPriceRanges = new Set(JSON.parse(storedPriceRanges));
+
     } catch (e) {
-      console.error("Error reading settings from localStorage:", e);
+        console.error("Error reading settings from localStorage:", e);
     }
   }
 
@@ -124,21 +127,38 @@
   $: if (browser) localStorage.setItem("lmb-filterStrategy", filterStrategy);
   $: if (browser) localStorage.setItem("lmb-selectedPriceRanges", JSON.stringify(Array.from(selectedPriceRanges)));
 
-  // Dialog control
+
+  // Reactive logic to control the dialog's open state programmatically
   $: {
-    if (settingsOpen && dialogRef && !dialogRef.open) {
-      dialogRef.showModal();
-    } else if (!settingsOpen && dialogRef?.open) {
-      dialogRef.close();
+    // Ensure we are in the browser and the dialog element exists
+    if (browser && dialogRef) {
+      if (settingsOpen && !dialogRef.open) {
+        // If state says open and dialog isn't, open it
+        dialogRef.showModal();
+      } else if (!settingsOpen && dialogRef.open) {
+         // If state says closed and dialog is open, close it
+        dialogRef.close();
+      }
     }
   }
-</script>
 
+  // Function to handle Set changes reactively
+  function togglePriceRange(range: PriceRange, isChecked: boolean) {
+    if (isChecked) {
+        selectedPriceRanges.add(range);
+    } else {
+        selectedPriceRanges.delete(range);
+    }
+    // IMPORTANT: Reassign the Set to trigger Svelte's reactivity
+    selectedPriceRanges = new Set(selectedPriceRanges);
+  }
+</script>
 
 <!-- Use CSS Variables for theming (define these in a global stylesheet or :root) -->
 <svelte:head>
  <style>
     :root {
+        /* --- Your CSS Variables --- */
         --color-primary: #6750a4; /* Example primary color */
         --color-on-primary: #ffffff;
         --color-primary-container: #eaddff;
@@ -234,23 +254,23 @@
   {selectedPriceRanges}
 />
 
-<!-- Standard HTML Dialog -->
+<!--
+  Standard HTML Dialog
+  - Use bind:this to get a reference to the element.
+  - Use on:close to update the settingsOpen state if the dialog is closed via Escape key.
+  - The content (form) MUST be inside the <dialog> tags.
+-->
 <dialog
   bind:this={dialogRef}
   class="settings-dialog"
   on:close={() => (settingsOpen = false)}
 >
+  <!-- form with method="dialog" allows buttons with type="submit" to close the dialog -->
   <form method="dialog">
-    <div class="settings-content">
-      <!-- Your dialog content here -->
-    </div>
-  </form>
-</dialog>
-
-  <form method="dialog"> <!-- Allows closing via buttons inside -->
     <div class="settings-content">
       <h2>Settings</h2>
 
+      <!-- Setting: Open Models Only -->
       <label class="setting-item toggle-like">
         <span>Open models only</span>
         <div class="switch">
@@ -258,6 +278,8 @@
              <label for="showOpenOnlySwitch" class="switch-track"></label>
         </div>
       </label>
+
+      <!-- Setting: Visualize Scores -->
       <div class="filter-section-inline">
         <span>Visualize scores</span>
         <div class="button-group">
@@ -272,6 +294,7 @@
         </div>
       </div>
 
+      <!-- Setting: Rank Equivalence Threshold -->
       <div class="filter-section">
         <span>Rank equivalence threshold</span>
         <div class="button-group radio-group">
@@ -286,55 +309,57 @@
         </div>
       </div>
 
+      <!-- Setting: Filter by Price Range -->
       <div class="filter-section">
         <span>Filter by price range</span>
         <div class="button-group">
           {#each ["$", "$$", "$$$", "$$$$"] as range (range)}
-            {@const isSelected = selectedPriceRanges.has(range as PriceRange)}
+            {@const priceRange = range as PriceRange}
+            {@const isSelected = selectedPriceRanges.has(priceRange)}
             <label class="toggle-button small">
               <input
                 type="checkbox"
                 checked={isSelected}
-                on:change={(e) => {
-                  if (e.currentTarget.checked) {
-                    selectedPriceRanges.add(range as PriceRange);
-                  } else {
-                    selectedPriceRanges.delete(range as PriceRange);
-                  }
-                  selectedPriceRanges = selectedPriceRanges; // Trigger reactivity
-                }}
+                on:change={(e) => togglePriceRange(priceRange, (e.currentTarget as HTMLInputElement).checked)}
               />
-              <span>{getPriceRangeLabel(range as PriceRange)}</span>
+              <span>{getPriceRangeLabel(priceRange)}</span>
             </label>
           {/each}
         </div>
       </div>
 
+      <!-- Setting: Filter Similar Models -->
       <div class="filter-section">
         <span>Filter similar models</span>
         <div class="button-group radio-group">
           {#each ["showAll", "hideDeprecated", "hideOld", "onePerOrg"] as strategy (strategy)}
+             {@const filterStrat = strategy as FilterStrategy}
             <label class="radio-button">
                 <input
                     type="radio"
                     name="filterStrategy"
                     bind:group={filterStrategy}
-                    value={strategy}
-                    id="filter-{strategy}"
+                    value={filterStrat}
+                    id="filter-{filterStrat}"
                 />
-                <span>{getFilterDescription(strategy as FilterStrategy)}</span>
+                <span>{getFilterDescription(filterStrat)}</span>
             </label>
           {/each}
         </div>
       </div>
-    </div>
+    </div> <!-- End .settings-content -->
+
     <div class="dialog-actions">
-      <button type="submit" class="text-button">Done</button> <!-- Closes dialog due to form method="dialog" -->
+      <!-- This button closes the dialog because it's type="submit" inside a form[method="dialog"] -->
+      <button type="submit" class="text-button">Done</button>
     </div>
-  </form>
-</dialog>
+  </form> <!-- End form -->
+</dialog> <!-- End dialog -->
+
 
 <style>
+  /* --- Your existing styles --- */
+
   /* General layout for search/controls */
   .search-controls-container {
     display: flex;
@@ -529,6 +554,7 @@
     color: var(--color-on-surface);
     max-width: 90vw; /* Limit width */
     width: 500px; /* Default width */
+    overflow: hidden; /* Prevent content bleed before radius */
   }
 
   .settings-dialog::backdrop {
@@ -536,11 +562,19 @@
     backdrop-filter: blur(2px); /* Optional blur */
   }
 
+  .settings-dialog form {
+    display: flex; /* Use flex to position actions at bottom */
+    flex-direction: column;
+    height: 100%; /* Allow form to fill dialog height if needed */
+  }
+
   .settings-content {
     display: flex;
     flex-direction: column;
     gap: 1.75rem; /* Spacing between sections */
     padding: 1.5rem; /* Inner padding */
+    flex-grow: 1; /* Allow content to take up available space */
+    overflow-y: auto; /* Allow content scrolling if it overflows */
   }
 
   .settings-content h2 {
@@ -586,12 +620,10 @@
   .dialog-actions {
     display: flex;
     justify-content: flex-end;
-    padding: 0.5rem 1.5rem 1.5rem; /* Padding around actions */
+    padding: 1rem 1.5rem; /* Padding around actions */
     border-top: 1px solid var(--color-outline);
-    margin-top: 1.5rem; /* Space above actions */
     background-color: var(--color-surface); /* Ensure background matches dialog */
-    border-bottom-left-radius: var(--border-radius-xl); /* Match dialog radius */
-    border-bottom-right-radius: var(--border-radius-xl);
+    flex-shrink: 0; /* Prevent actions area from shrinking */
   }
 
   /* Custom Switch Styles */
