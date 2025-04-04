@@ -8,8 +8,7 @@
   let {
     paradigm,
     board,
-    category,
-    styleControl,
+    categoryKey, // Renamed from category for clarity
     searches,
     showOpenOnly = false, // Default values handled here
     vizBorder = false,
@@ -20,10 +19,9 @@
   } = $props<{
     paradigm: string;
     board: Record<string, Record<string, any>>;
-    category: string;
-    styleControl: boolean;
+    categoryKey: string; // Use the actual key
     searches: string[];
-    showOpenOnly?: boolean; // Mark as optional if default is provided
+    showOpenOnly?: boolean;
     vizBorder?: boolean;
     vizBar?: boolean;
     rankStrategy: string;
@@ -31,12 +29,10 @@
     selectedPriceRanges: Set<PriceRange>;
   }>();
 
-  // Derived state using Svelte 5 $derived rune
-  let categoryName = $derived(`${category}${styleControl ? "_style_control" : ""}`);
 
   let models = $derived(filterModels(
     board,
-    categoryName,
+    categoryKey, // Use the direct key passed in
     searches,
     showOpenOnly,
     rankStrategy,
@@ -46,14 +42,15 @@
 
   let anyCi = $derived(models.some((m: ModelData) => m.ciLow !== m.ciHigh));
 
-  // Handle potential empty models array for Math.max
-  let maxRating = $derived(models.length > 0 ? Math.max(...models.map((m: ModelData) => m.ciHigh)) : 1000); // Use 1000 as default or another sensible baseline
+  let maxRating = $derived(models.length > 0 ? Math.max(...models.map((m: ModelData) => m.ciHigh)) : 1000);
 
-  // Regular functions remain unchanged
   function formatCI(rating: number, low: number, high: number): string {
     const minus = Math.round(rating - low);
     const plus = Math.round(high - rating);
-    return `+${plus}/-${minus}`;
+    // Handle cases where CI might be zero or NaN
+    const minusStr = isNaN(minus) ? '?' : minus;
+    const plusStr = isNaN(plus) ? '?' : plus;
+    return `+${plusStr}/-${minusStr}`;
   }
 
   function getModelLink(name: string) {
@@ -63,7 +60,6 @@
       return `https://huggingface.co/models?search=${encodeURIComponent(name)}`;
     }
 
-    // Keep the orgToUrl mapping as is
     const orgToUrl: Record<string, string> = {
       OpenAI: "https://platform.openai.com/docs/models/",
       Amazon: "https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html#model-ids-arns", // Updated Amazon link
@@ -78,7 +74,6 @@
       "Black Forest Labs": "https://blackforestlabs.ai/",
       "Reka AI": "https://www.reka.ai/ourmodels",
       Stability: "https://platform.stability.ai/",
-      // Add other orgs if needed
     };
 
     if (metadata?.organization && metadata.organization in orgToUrl) {
@@ -112,7 +107,7 @@
       <tr
         class:short={vizBorder}
         style:--padding={vizBorder && i > 0 && models[i - 1]
-          ? `${2 * Math.min(Math.max(models[i - 1].rating - rating, 0), 300) + 1}px`
+          ? `${Math.max(1, 2 * Math.min(Math.max(models[i - 1].ciLow - ciHigh, 0), 300))}px` // Adjusted calculation for clarity and ensure min 1px
           : "1px"}
       >
         <td>{rank}</td>
@@ -127,15 +122,15 @@
         </td>
         <td>
           {#if vizBar}
-            {@const ratingBase = 1000}
-            {/* Define base for percentage calculation */} {/* <-- FIX: Moved comment to this line */}
-            {@const ratingRange = maxRating - ratingBase}
+            {@const ratingBase = 800} // Base for visualization
+            {@const maxVizRating = Math.max(maxRating, ratingBase + 100)} // Ensure range > 0
+            {@const ratingRange = maxVizRating - ratingBase}
             {@const pct1 = ratingRange > 0 ? Math.max((ciLow - ratingBase) / ratingRange, 0) * 100 : 0}
             {@const pct2 = ratingRange > 0 ? Math.max((rating - ratingBase) / ratingRange, 0) * 100 : 0}
             {@const pct3 = ratingRange > 0 ? Math.max((ciHigh - ratingBase) / ratingRange, 0) * 100 : 0}
             <div class="viz-bar">
               <div class="shadow" style:left="{pct1}%" style:right="{100 - pct3}%"></div>
-              <div class="bar" style:width="{pct2}%"></div> {/* Simplified width */}
+              <div class="bar" style:width="{pct2}%"></div>
               <span>{Math.round(rating)}</span>
             </div>
           {:else}
@@ -150,25 +145,13 @@
   </tbody>
 </table>
 
-<ScatterChart {models} unit={paradigm.startsWith("image") ? "generation" : "1M tokens (mixed)"} />
+{#if models.some(m => modelMetadata[m.name]?.price !== undefined)}
+  <ScatterChart {models} unit={paradigm.startsWith("image") ? "generation" : "1M tokens (mixed)"} />
+{/if}
+
 
 <style>
-  /* Styles from original, potentially updated based on your variables */
-  :root {
-    /* Define these CSS variables based on your theme */
-    /* Example using placeholders */
-    --m3-scheme-on-surface-variant: 100, 100, 100;
-    --m3-scheme-outline-variant: 200, 200, 200;
-    --m3-scheme-primary: 0, 123, 255;
-    --m3-scheme-tertiary-container: 230, 240, 255;
-    --m3-scheme-on-tertiary-container: 50, 70, 90;
-    /* Diff variables */
-    --border-radius-sm: 4px; /* Example value */
-    --color-surface-container: rgb(240, 240, 240); /* Example value */
-    --color-secondary: rgb(108, 117, 125); /* Example value */
-    --color-text: rgb(33, 37, 41); /* Example value */
-  }
-
+  /* Use app.css variables */
   table {
     width: 100%;
     border-collapse: separate;
@@ -184,12 +167,17 @@
 
   th {
     font-weight: bold;
-    color: rgb(var(--m3-scheme-on-surface-variant));
+    color: var(--color-text-variant); /* Use app.css var */
   }
 
   td {
-    border-top: var(--padding) solid rgb(var(--m3-scheme-outline-variant));
+    border-top: var(--padding) solid var(--color-outline-variant); /* Use app.css var */
     transition: border-top-width 200ms;
+  }
+
+  /* Ensure last row doesn't have bottom border if using border-spacing: 0 */
+  tbody tr:last-child td {
+      border-bottom: none;
   }
 
   td,
@@ -198,7 +186,7 @@
   }
 
   a {
-    color: rgb(var(--m3-scheme-primary));
+    color: var(--color-primary); /* Use app.css var */
     text-decoration: none;
   }
 
@@ -209,59 +197,66 @@
   .badge {
     font-size: 0.75rem;
     padding: 0.1rem 0.4rem;
-    border-radius: 1rem;
-    background-color: rgb(var(--m3-scheme-tertiary-container));
-    color: rgb(var(--m3-scheme-on-tertiary-container));
+    border-radius: var(--border-radius-full); /* Use app.css var */
+    background-color: var(--color-tertiary); /* Use app.css var */
+    color: var(--color-text-on-tertiary); /* Use app.css var */
     margin-left: 0.5rem;
     vertical-align: middle;
+    font-weight: 500; /* Make badge text slightly bolder */
   }
 
-  /* Updated .viz-bar styles based on the diff */
   .viz-bar {
     display: flex;
     align-items: center;
-    width: 60dvw;
-    height: 1.5rem; /* Slightly smaller bar */
+    width: clamp(200px, 50vw, 400px); /* Responsive width */
+    height: 1.5rem;
     position: relative;
-    border-radius: var(--border-radius-sm);
-    overflow: hidden; /* Hide overflow */
-    background-color: var(--color-surface-container); /* Add background to bar container */
-
-    .shadow {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      background-color: var(--color-secondary); /* Use secondary for CI shadow */
-      opacity: 0.2;
-      /* left/right set dynamically */
-    }
-
-    .bar {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0; /* Bar always starts from left */
-      background-color: var(--color-secondary); /* Use secondary color */
-      /* Removed border-radius from here, handled by parent overflow:hidden */
-      /* width set dynamically */
-    }
-
-    span {
-      color: var(--color-text); /* Use regular text color or a contrast color */
-      padding-left: 0.5rem;
-      z-index: 1;
-      font-weight: 500;
-      mix-blend-mode: difference; /* Make text visible on bar */
-      pointer-events: none; /* Prevent text from interfering with potential interactions */
-      line-height: 1.5rem; /* Match parent height */
-    }
+    border-radius: var(--border-radius-sm); /* Use app.css var */
+    overflow: hidden;
+    background-color: var(--color-surface-container); /* Use app.css var */
+    border: 1px solid var(--color-outline-variant); /* Subtle border */
   }
+
+  .viz-bar .shadow {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background-color: var(--color-secondary); /* Use app.css var */
+    opacity: 0.2;
+    /* left/right set dynamically */
+  }
+
+  .viz-bar .bar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    background-color: var(--color-secondary); /* Use app.css var */
+    height: 100%;
+    /* width set dynamically */
+  }
+
+  .viz-bar span {
+    color: var(--color-text); /* Use app.css var */
+    padding-left: 0.5rem;
+    z-index: 1;
+    font-weight: 500;
+    mix-blend-mode: difference;
+    filter: invert(1) grayscale(1) contrast(10); /* Improve contrast for text over bar */
+    pointer-events: none;
+    line-height: 1.5rem;
+  }
+
 
   .short td {
       padding: 0.25rem 0.5rem;
   }
-  /* Adjust .short .viz-bar height if needed, but it's already 1.5rem */
-  /* .short .viz-bar { height: 1.2rem; } */ /* Example if further reduction desired */
-  /* .short .viz-bar span { line-height: 1.2rem; } */ /* Match height */
+  .short .viz-bar {
+      height: 1.2rem; /* Smaller height for short rows */
+  }
+   .short .viz-bar span {
+       line-height: 1.2rem; /* Match parent height */
+       font-size: 0.8rem; /* Smaller font for short rows */
+   }
 
 </style>
