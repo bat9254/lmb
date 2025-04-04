@@ -13,6 +13,7 @@
     type PriceRange,
     getFilterDescription,
     getPriceRangeLabel,
+    modelMetadata // Ensure modelMetadata is imported if used directly here, though it seems used only within filterModels
   } from "./model-metadata";
   import { browser } from "$app/environment";
 
@@ -50,6 +51,15 @@
       Spanish: "spanish",
       "Exclude <5 tok query": "no_short",
       "Exclude refusal": "no_refusal",
+      // Add style control variants if they exist in results.json
+      "Overall Style Ctrl": "full_style_control",
+      "IF Style Ctrl": "if_style_control",
+      "Math Style Ctrl": "math_style_control",
+      "Creative Style Ctrl": "creative_writing_style_control",
+      "Coding Style Ctrl": "coding_style_control",
+      "Multiturn Style Ctrl": "multiturn_style_control",
+      "Hard 6 Style Ctrl": "hard_6_style_control",
+      "Long User Style Ctrl": "long_user_style_control",
     },
     vision: { Overall: "full", English: "english", Chinese: "chinese" },
     image_arena: { Overall: "full" },
@@ -57,18 +67,44 @@
     image_fal: { Overall: "full" },
   } as Record<string, Record<string, string>>;
 
-  const categoryName = (category: string, styleControl: boolean) =>
-    `${category}${styleControl ? "_style_control" : ""}`;
+  // Reactive derived state for the actual category key used in the board
+  let currentCategoryKey = $derived(`${category}${styleControl ? "_style_control" : ""}`);
+
+  // Find the human-readable name for the current category key
+  function findCategoryName(key: string): string | undefined {
+      for (const cat in categories[paradigm]) {
+          if (categories[paradigm][cat] === key) {
+              return cat;
+          }
+      }
+      // Handle style control keys specifically if not directly in the map
+      if (key.endsWith('_style_control')) {
+           const baseKey = key.replace('_style_control', '');
+            for (const cat in categories[paradigm]) {
+                if (categories[paradigm][cat] === baseKey) {
+                    return `${cat} Style Ctrl`; // Or however you want to display it
+                }
+            }
+      }
+      return undefined; // Fallback if not found
+  }
+  let currentCategoryName = $derived(findCategoryName(currentCategoryKey) || 'Overall'); // Default to 'Overall'
+
 
   const normalizeStep = () => {
+    let board = getCurrentBoard();
+    // Ensure the base category exists for the paradigm
     if (!Object.values(categories[paradigm]).includes(category)) {
-      category = "full";
+      category = "full"; // Default to 'full' if invalid
     }
 
-    const targetCategory = categoryName(category, styleControl);
-    if (!(targetCategory in getCurrentBoard())) {
+    // Check if the style control version exists; if not, disable style control
+    const targetCategoryKey = `${category}_style_control`;
+    if (styleControl && !(targetCategoryKey in board)) {
       styleControl = false;
     }
+    // Update derived key after potential changes
+    currentCategoryKey = `${category}${styleControl ? "_style_control" : ""}`;
   };
   $: category, paradigm, styleControl, normalizeStep();
 
@@ -85,51 +121,55 @@
       case "image_fal":
         return imageFalBoard;
       default:
-        return textBoard;
+        return textBoard; // Fallback
     }
   }
 
   // Persist settings to localStorage
-  $: if (browser) {
-    try { // Use try/catch for potential JSON parsing errors or storage issues
-        const storedVizBorder = localStorage.getItem("lmb-vizBorder");
-        if (storedVizBorder) vizBorder = JSON.parse(storedVizBorder);
+  $effect(() => {
+     if (browser) {
+        try { // Use try/catch for potential JSON parsing errors or storage issues
+            const storedVizBorder = localStorage.getItem("lmb-vizBorder");
+            if (storedVizBorder) vizBorder = JSON.parse(storedVizBorder);
 
-        const storedVizBar = localStorage.getItem("lmb-vizBar");
-        if (storedVizBar) vizBar = JSON.parse(storedVizBar);
+            const storedVizBar = localStorage.getItem("lmb-vizBar");
+            if (storedVizBar) vizBar = JSON.parse(storedVizBar);
 
-        const storedStyleControl = localStorage.getItem("lmb-styleControl");
-        if (storedStyleControl) styleControl = JSON.parse(storedStyleControl);
+            const storedStyleControl = localStorage.getItem("lmb-styleControl");
+            if (storedStyleControl) styleControl = JSON.parse(storedStyleControl);
 
-        const storedShowOpen = localStorage.getItem("lmb-showOpenOnly");
-        if (storedShowOpen) showOpenOnly = JSON.parse(storedShowOpen);
+            const storedShowOpen = localStorage.getItem("lmb-showOpenOnly");
+            if (storedShowOpen) showOpenOnly = JSON.parse(storedShowOpen);
 
-        const storedRank = localStorage.getItem("lmb-rankStrategy");
-        if (storedRank) rankStrategy = storedRank;
+            const storedRank = localStorage.getItem("lmb-rankStrategy");
+            if (storedRank) rankStrategy = storedRank;
 
-        const storedFilter = localStorage.getItem("lmb-filterStrategy");
-        if (storedFilter) filterStrategy = storedFilter as FilterStrategy;
+            const storedFilter = localStorage.getItem("lmb-filterStrategy");
+            if (storedFilter) filterStrategy = storedFilter as FilterStrategy;
 
-        const storedPriceRanges = localStorage.getItem("lmb-selectedPriceRanges");
-        if (storedPriceRanges) selectedPriceRanges = new Set(JSON.parse(storedPriceRanges));
+            const storedPriceRanges = localStorage.getItem("lmb-selectedPriceRanges");
+            if (storedPriceRanges) selectedPriceRanges = new Set(JSON.parse(storedPriceRanges));
 
-    } catch (e) {
-        console.error("Error reading settings from localStorage:", e);
-    }
-  }
+        } catch (e) {
+            console.error("Error reading settings from localStorage:", e);
+            // Optionally reset to defaults here if reading fails
+        }
+      }
+  });
+
 
   // Reactive statements to save settings when they change
-  $: if (browser) localStorage.setItem("lmb-vizBorder", JSON.stringify(vizBorder));
-  $: if (browser) localStorage.setItem("lmb-vizBar", JSON.stringify(vizBar));
-  $: if (browser) localStorage.setItem("lmb-styleControl", JSON.stringify(styleControl));
-  $: if (browser) localStorage.setItem("lmb-showOpenOnly", JSON.stringify(showOpenOnly));
-  $: if (browser) localStorage.setItem("lmb-rankStrategy", rankStrategy);
-  $: if (browser) localStorage.setItem("lmb-filterStrategy", filterStrategy);
-  $: if (browser) localStorage.setItem("lmb-selectedPriceRanges", JSON.stringify(Array.from(selectedPriceRanges)));
+  $effect(() => {if (browser) localStorage.setItem("lmb-vizBorder", JSON.stringify(vizBorder))});
+  $effect(() => {if (browser) localStorage.setItem("lmb-vizBar", JSON.stringify(vizBar))});
+  $effect(() => {if (browser) localStorage.setItem("lmb-styleControl", JSON.stringify(styleControl))});
+  $effect(() => {if (browser) localStorage.setItem("lmb-showOpenOnly", JSON.stringify(showOpenOnly))});
+  $effect(() => {if (browser) localStorage.setItem("lmb-rankStrategy", rankStrategy)});
+  $effect(() => {if (browser) localStorage.setItem("lmb-filterStrategy", filterStrategy)});
+  $effect(() => {if (browser) localStorage.setItem("lmb-selectedPriceRanges", JSON.stringify(Array.from(selectedPriceRanges)))});
 
 
   // Reactive logic to control the dialog's open state programmatically
-  $: {
+  $effect(() => {
     // Ensure we are in the browser and the dialog element exists
     if (browser && dialogRef) {
       if (settingsOpen && !dialogRef.open) {
@@ -140,65 +180,28 @@
         dialogRef.close();
       }
     }
-  }
+  });
 
   // Function to handle Set changes reactively
   function togglePriceRange(range: PriceRange, isChecked: boolean) {
+    const newSet = new Set(selectedPriceRanges); // Create a new Set based on the current one
     if (isChecked) {
-        selectedPriceRanges.add(range);
+        newSet.add(range);
     } else {
-        selectedPriceRanges.delete(range);
+        newSet.delete(range);
     }
-    // IMPORTANT: Reassign the Set to trigger Svelte's reactivity
-    selectedPriceRanges = new Set(selectedPriceRanges);
+    // IMPORTANT: Assign the new Set back to the variable to trigger reactivity
+    selectedPriceRanges = newSet;
   }
 </script>
 
-<!-- Use CSS Variables for theming (define these in a global stylesheet or :root) -->
 <svelte:head>
+    <title>LMB - {currentCategoryName} ({paradigm})</title>
+    <meta name="description" content="Leaderboard for {paradigm} models in the {currentCategoryName} category.">
+ <!-- Define CSS Variables directly in head or link to app.css -->
+ <!-- Note: app.css already defines these, so this might be redundant unless you need overrides -->
  <style>
-    :root {
-        /* --- Your CSS Variables --- */
-        --color-primary: #6750a4; /* Example primary color */
-        --color-on-primary: #ffffff;
-        --color-primary-container: #eaddff;
-        --color-on-primary-container: #21005e;
-        --color-secondary: #625b71;
-        --color-on-secondary: #ffffff;
-        --color-secondary-container: #e8def8;
-        --color-on-secondary-container: #1e192b;
-        --color-tertiary: #7d5260;
-        --color-on-tertiary: #ffffff;
-        --color-tertiary-container: #ffd8e4;
-        --color-on-tertiary-container: #370b1e;
-        --color-error: #b3261e;
-        --color-on-error: #ffffff;
-        --color-error-container: #f9dedc;
-        --color-on-error-container: #410e0b;
-        --color-background: #fffbfe;
-        --color-on-background: #1c1b1f;
-        --color-surface: #fffbfe; /* Often same as background */
-        --color-on-surface: #1c1b1f;
-        --color-surface-variant: #e7e0ec;
-        --color-on-surface-variant: #49454e;
-        --color-outline: #79747e;
-        --color-surface-container-high: #ece6f0;
-        --color-surface-container: #f3edf7;
-        --color-surface-container-low: #f7f2fa;
-        --color-surface-bright: #fffbfe;
-        --color-surface-dim: #ded8e1;
-
-        --border-radius-sm: 4px;
-        --border-radius-md: 8px;
-        --border-radius-lg: 16px;
-        --border-radius-xl: 28px;
-        --border-radius-full: 999px;
-
-        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    }
-    /* Add dark mode variables if needed */
+    /* Removed the :root block as variables are in app.css */
  </style>
 </svelte:head>
 
@@ -215,10 +218,14 @@
       }}
     />
     {#if Object.keys(categories[paradigm]).length > 1}
-      <Dropdown bind:value={category} options={categories[paradigm]} />
+       <!-- Filter out style control variants from the dropdown options -->
+       {@const displayOptions = Object.fromEntries(
+           Object.entries(categories[paradigm]).filter(([_, val]) => !val.endsWith('_style_control'))
+       )}
+      <Dropdown bind:value={category} options={displayOptions} />
     {/if}
-    {#if categoryName(category, true) in getCurrentBoard()}
-      <!-- Custom toggle button -->
+     {#if `${category}_style_control` in getCurrentBoard()}
+      <!-- Custom toggle button for Style Control -->
       <label class="toggle-button">
         <input type="checkbox" bind:checked={styleControl} />
         <span>Style Ctrl</span>
@@ -231,41 +238,44 @@
       <div class="search-field">
         <span class="search-icon">🔍</span> <!-- Basic search icon -->
         <input type="text" bind:value={searches[i]} placeholder="Search model..." />
+         {#if searches.length > 1}
+           <button class="icon-button remove-search" on:click={() => searches = searches.filter((_, idx) => idx !== i)} title="Remove search">×</button>
+         {/if}
       </div>
     {/each}
-    <button class="icon-button add-search" on:click={() => (searches = [...searches, ""])} title={searches.length ? 'Add another search' : 'Add search'}>
-      {searches.length ? '+' : '🔍'}
-    </button>
+     {#if searches.length < 3} <!-- Limit number of search bars -->
+        <button class="icon-button add-search" on:click={() => (searches = [...searches, ""])} title={searches.length ? 'Add another search' : 'Add search'}>
+         {searches.length === 0 ? '🔍' : '+'}
+        </button>
+     {/if}
   </div>
   <button class="icon-button settings-button" on:click={() => (settingsOpen = true)} title="Settings">⚙️</button>
 </div>
 
-<ModelTable
-  {paradigm}
-  board={getCurrentBoard()}
-  {category}
-  {styleControl}
-  {searches}
-  {showOpenOnly}
-  {vizBorder}
-  {vizBar}
-  {rankStrategy}
-  {filterStrategy}
-  {selectedPriceRanges}
-/>
+{#if currentCategoryKey in getCurrentBoard()}
+  <ModelTable
+    {paradigm}
+    board={getCurrentBoard()}
+    categoryKey={currentCategoryKey} <!-- Pass the actual key -->
+    {searches}
+    {showOpenOnly}
+    {vizBorder}
+    {vizBar}
+    {rankStrategy}
+    {filterStrategy}
+    {selectedPriceRanges}
+  />
+{:else}
+  <p>Category '{currentCategoryKey}' not found for paradigm '{paradigm}'. Please select a valid category.</p>
+{/if}
 
-<!--
-  Standard HTML Dialog
-  - Use bind:this to get a reference to the element.
-  - Use on:close to update the settingsOpen state if the dialog is closed via Escape key.
-  - The content (form) MUST be inside the <dialog> tags.
--->
+
+<!-- Standard HTML Dialog -->
 <dialog
   bind:this={dialogRef}
   class="settings-dialog"
   on:close={() => (settingsOpen = false)}
 >
-  <!-- form with method="dialog" allows buttons with type="submit" to close the dialog -->
   <form method="dialog">
     <div class="settings-content">
       <h2>Settings</h2>
@@ -310,23 +320,25 @@
       </div>
 
       <!-- Setting: Filter by Price Range -->
-      <div class="filter-section">
-        <span>Filter by price range</span>
-        <div class="button-group">
-          {#each ["$", "$$", "$$$", "$$$$"] as range (range)}
-            {@const priceRange = range as PriceRange}
-            {@const isSelected = selectedPriceRanges.has(priceRange)}
-            <label class="toggle-button small">
-              <input
-                type="checkbox"
-                checked={isSelected}
-                on:change={(e) => togglePriceRange(priceRange, (e.currentTarget as HTMLInputElement).checked)}
-              />
-              <span>{getPriceRangeLabel(priceRange)}</span>
-            </label>
-          {/each}
+      {#if paradigm !== 'image_arena' && paradigm !== 'image_fal'} <!-- Conditionally show price filter -->
+        <div class="filter-section">
+            <span>Filter by price range</span>
+            <div class="button-group">
+            {#each ["$", "$$", "$$$", "$$$$"] as range (range)}
+                {@const priceRange = range as PriceRange}
+                {@const isSelected = selectedPriceRanges.has(priceRange)}
+                <label class="toggle-button small">
+                <input
+                    type="checkbox"
+                    checked={isSelected}
+                    on:change={(e) => togglePriceRange(priceRange, (e.currentTarget as HTMLInputElement).checked)}
+                />
+                <span>{getPriceRangeLabel(priceRange)}</span>
+                </label>
+            {/each}
+            </div>
         </div>
-      </div>
+       {/if}
 
       <!-- Setting: Filter Similar Models -->
       <div class="filter-section">
@@ -350,7 +362,6 @@
     </div> <!-- End .settings-content -->
 
     <div class="dialog-actions">
-      <!-- This button closes the dialog because it's type="submit" inside a form[method="dialog"] -->
       <button type="submit" class="text-button">Done</button>
     </div>
   </form> <!-- End form -->
@@ -358,8 +369,6 @@
 
 
 <style>
-  /* --- Your existing styles --- */
-
   /* General layout for search/controls */
   .search-controls-container {
     display: flex;
@@ -367,10 +376,10 @@
     gap: 0.75rem;
     align-items: center;
     padding: 0.75rem 1rem;
-    background-color: var(--color-surface-container-low);
-    border-radius: var(--border-radius-lg);
+    background-color: var(--color-surface-container); /* Use app.css var */
+    border-radius: var(--border-radius-lg); /* Use app.css var */
     margin-bottom: 1rem; /* Space below controls */
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-sm); /* Use app.css var */
   }
 
   .controls-group {
@@ -392,20 +401,20 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-outline);
+    background-color: var(--color-surface); /* Use app.css var */
+    border: 1px solid var(--color-outline); /* Use app.css var */
     border-radius: var(--border-radius-full); /* Pill shape */
     flex-grow: 1; /* Allow individual search fields to grow */
     min-width: 160px; /* Prevent excessive shrinking */
     transition: border-color 0.2s ease;
   }
   .search-field:focus-within {
-    border-color: var(--color-primary);
+    border-color: var(--color-primary); /* Use app.css var */
     outline: 1px solid var(--color-primary); /* Focus indicator */
   }
 
   .search-icon {
-    color: var(--color-on-surface-variant);
+    color: var(--color-text-variant); /* Use app.css var */
     flex-shrink: 0; /* Prevent icon shrinking */
   }
 
@@ -413,22 +422,40 @@
     background: transparent;
     border: none;
     outline: none;
-    color: var(--color-on-surface);
+    color: var(--color-text); /* Use app.css var */
     font-size: 0.9rem;
     width: 100%; /* Fill available space within the field */
   }
   .search-field input::placeholder {
-    color: var(--color-on-surface-variant);
+    color: var(--color-text-variant); /* Use app.css var */
     opacity: 0.8;
   }
+  .remove-search {
+      padding: 0.2rem;
+      width: 1.5rem;
+      height: 1.5rem;
+      line-height: 1;
+      min-width: 0;
+      font-size: 1rem;
+      border-radius: 50%;
+      border: none;
+      background-color: var(--color-surface-variant);
+      color: var(--color-text-variant);
+      margin-left: 0.25rem;
+  }
+  .remove-search:hover {
+      background-color: var(--color-outline);
+      color: var(--color-surface);
+  }
+
 
   /* General Button Styles */
   button, .button-like {
     padding: 0.6rem 1rem;
-    border: 1px solid var(--color-outline);
-    border-radius: var(--border-radius-full);
-    background-color: var(--color-surface-container);
-    color: var(--color-primary);
+    border: 1px solid var(--color-outline); /* Use app.css var */
+    border-radius: var(--border-radius-full); /* Use app.css var */
+    background-color: var(--color-surface-container); /* Use app.css var */
+    color: var(--color-primary); /* Use app.css var */
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.2s ease;
@@ -436,10 +463,10 @@
     line-height: 1.2; /* Adjust line height */
   }
   button:hover, .button-like:hover {
-    background-color: var(--color-surface-container-high);
+    background-color: var(--color-surface-variant); /* Use app.css var */
   }
   button:active, .button-like:active {
-     background-color: var(--color-surface-variant);
+     background-color: var(--color-outline-variant); /* Use app.css var */
   }
 
   /* Icon Button Styles */
@@ -457,11 +484,11 @@
   .settings-button {
     border-color: transparent;
     background-color: transparent;
-    color: var(--color-on-surface-variant);
+    color: var(--color-text-variant); /* Use app.css var */
   }
    .settings-button:hover {
-     background-color: var(--color-surface-container-high); /* Slight background on hover */
-     color: var(--color-primary);
+     background-color: var(--color-surface-container); /* Use app.css var */
+     color: var(--color-primary); /* Use app.css var */
    }
    .add-search {
      border-style: dashed; /* Indicate adding action */
@@ -471,32 +498,32 @@
   .text-button {
     background: none;
     border: none;
-    color: var(--color-primary);
+    color: var(--color-primary); /* Use app.css var */
     padding: 0.6rem 0.75rem; /* Less horizontal padding */
   }
   .text-button:hover {
-    background-color: var(--color-primary-container);
-    opacity: 0.8;
+    background-color: rgba(var(--color-primary-rgb, 0, 0, 0), 0.1); /* Assuming primary has RGB equivalent */
+    opacity: 0.9; /* Keep opacity */
   }
 
-  /* Custom Toggle/Radio Button Styling (Segmented Button alternative) */
+  /* Custom Toggle/Radio Button Styling */
   .toggle-button,
   .radio-button {
-    display: inline-flex; /* Use inline-flex for label behavior */
+    display: inline-flex;
     align-items: center;
-    position: relative; /* Needed for hiding the input */
+    position: relative;
     cursor: pointer;
-    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+    -webkit-tap-highlight-color: transparent;
   }
 
   .toggle-button span,
   .radio-button span {
     display: block;
     padding: 0.5rem 1rem;
-    border: 1px solid var(--color-outline);
+    border: 1px solid var(--color-outline); /* Use app.css var */
     border-radius: var(--border-radius-full); /* Pill shape */
-    background-color: var(--color-surface-container);
-    color: var(--color-on-surface-variant);
+    background-color: var(--color-surface-container); /* Use app.css var */
+    color: var(--color-text-variant); /* Use app.css var */
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
     font-size: 0.875rem;
     white-space: nowrap; /* Prevent wrapping */
@@ -510,8 +537,8 @@
 
   .toggle-button input[type="checkbox"],
   .radio-button input[type="radio"] {
-    appearance: none; /* Hide default appearance */
-    position: absolute; /* Take out of layout */
+    appearance: none;
+    position: absolute;
     opacity: 0;
     width: 0;
     height: 0;
@@ -520,68 +547,67 @@
   /* Checked State */
   .toggle-button input:checked + span,
   .radio-button input:checked + span {
-    background-color: var(--color-secondary-container);
-    color: var(--color-on-secondary-container);
-    border-color: var(--color-secondary-container);
+    background-color: var(--color-secondary); /* Adjusted - Use secondary or primary as needed */
+    color: var(--color-text-on-secondary); /* Adjusted */
+    border-color: var(--color-secondary); /* Adjusted */
   }
 
-  /* Grouping for Radio/Toggle buttons (replaces SegmentedButtonContainer) */
+  /* Grouping */
   .button-group {
     display: flex;
-    flex-wrap: wrap; /* Allow buttons to wrap */
+    flex-wrap: wrap;
     gap: 0.5rem;
   }
 
-  /* Ensure only one border between items in a group (more complex, requires :has or JS, optional) */
-   /* Basic hover */
+  /* Hover */
   .toggle-button:hover span,
   .radio-button:hover span {
-      background-color: var(--color-surface-container-high);
+      background-color: var(--color-surface-variant); /* Adjusted */
   }
   .toggle-button input:checked:hover + span,
   .radio-button input:checked:hover + span {
-       background-color: var(--color-secondary-container); /* Keep checked color on hover */
+       background-color: var(--color-secondary); /* Keep checked color */
        opacity: 0.9;
   }
 
   /* Dialog Styling */
   .settings-dialog {
     border: none;
-    border-radius: var(--border-radius-xl);
-    padding: 0; /* Remove default padding */
-    box-shadow: var(--shadow-lg);
-    background-color: var(--color-surface);
-    color: var(--color-on-surface);
-    max-width: 90vw; /* Limit width */
-    width: 500px; /* Default width */
-    overflow: hidden; /* Prevent content bleed before radius */
+    border-radius: var(--border-radius-lg); /* Use app.css var */
+    padding: 0;
+    box-shadow: var(--shadow-md); /* Use app.css var */
+    background-color: var(--color-surface); /* Use app.css var */
+    color: var(--color-text); /* Use app.css var */
+    max-width: 90vw;
+    width: 500px;
+    overflow: hidden;
   }
 
   .settings-dialog::backdrop {
     background-color: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(2px); /* Optional blur */
+    backdrop-filter: blur(2px);
   }
 
   .settings-dialog form {
-    display: flex; /* Use flex to position actions at bottom */
+    display: flex;
     flex-direction: column;
-    height: 100%; /* Allow form to fill dialog height if needed */
+    height: 100%;
   }
 
   .settings-content {
     display: flex;
     flex-direction: column;
-    gap: 1.75rem; /* Spacing between sections */
-    padding: 1.5rem; /* Inner padding */
-    flex-grow: 1; /* Allow content to take up available space */
-    overflow-y: auto; /* Allow content scrolling if it overflows */
+    gap: 1.75rem;
+    padding: 1.5rem;
+    flex-grow: 1;
+    overflow-y: auto;
   }
 
   .settings-content h2 {
-    margin: 0 0 0.5rem 0; /* Reset margin */
+    margin: 0 0 0.5rem 0;
     font-size: 1.4rem;
     font-weight: 500;
-    color: var(--color-on-surface);
+    color: var(--color-text); /* Use app.css var */
   }
 
   .setting-item {
@@ -591,8 +617,8 @@
     gap: 1rem;
   }
 
-  .setting-item > span:first-child { /* The label text */
-      color: var(--color-on-surface);
+  .setting-item > span:first-child {
+      color: var(--color-text); /* Use app.css var */
       font-size: 1rem;
   }
 
@@ -603,10 +629,9 @@
   }
   .filter-section > span:first-child,
   .filter-section-inline > span:first-child {
-    /* Style the title of the section */
     font-weight: 500;
     font-size: 0.9rem;
-    color: var(--color-on-surface-variant);
+    color: var(--color-text-variant); /* Use app.css var */
     margin-bottom: 0.25rem;
   }
 
@@ -620,10 +645,10 @@
   .dialog-actions {
     display: flex;
     justify-content: flex-end;
-    padding: 1rem 1.5rem; /* Padding around actions */
-    border-top: 1px solid var(--color-outline);
-    background-color: var(--color-surface); /* Ensure background matches dialog */
-    flex-shrink: 0; /* Prevent actions area from shrinking */
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--color-outline); /* Use app.css var */
+    background-color: var(--color-surface); /* Use app.css var */
+    flex-shrink: 0;
   }
 
   /* Custom Switch Styles */
@@ -648,9 +673,9 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: var(--color-outline);
+        background-color: var(--color-outline); /* Use app.css var */
         transition: background-color .2s ease;
-        border-radius: var(--border-radius-full);
+        border-radius: var(--border-radius-full); /* Use app.css var */
     }
 
     /* Switch thumb */
@@ -664,22 +689,21 @@
         background-color: white;
         transition: transform .2s ease;
         border-radius: 50%;
-        box-shadow: var(--shadow-sm);
+        box-shadow: var(--shadow-sm); /* Use app.css var */
     }
 
     /* Checked state */
     .switch input:checked + .switch-track {
-        background-color: var(--color-primary);
+        background-color: var(--color-primary); /* Use app.css var */
     }
 
     .switch input:checked + .switch-track:before {
-        transform: translateX(20px); /* Move thumb across (width - thumb width - 2*padding) */
+        transform: translateX(20px); /* Move thumb across */
     }
 
     /* Focus state */
     .switch input:focus-visible + .switch-track {
-       outline: 2px solid var(--color-primary);
+       outline: 2px solid var(--color-primary); /* Use app.css var */
        outline-offset: 2px;
     }
-
 </style>
